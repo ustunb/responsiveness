@@ -1,0 +1,152 @@
+name: Publish Snapshot
+
+on:
+  push:
+    branches: [publish]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  id-token: write
+
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  PYTHON_VERSION: "3.12"
+  PUBLIC_REPO: "ustunb/reachml"
+
+jobs:
+  test:
+    name: Verify build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Sync project environment
+        run: uv sync --frozen
+
+      - name: Run test suite
+        run: uv run pytest
+
+  publish:
+    name: Publish release
+    needs: test
+    runs-on: ubuntu-latest
+    environment: publish
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Sync project environment
+        run: uv sync --frozen
+
+      - name: Determine version
+        id: version
+        run: |
+          VERSION="$(uv run python -m hatchling version)"
+          echo "value=${VERSION}" >> "${GITHUB_OUTPUT}"
+
+      - name: Capture release notes
+        id: notes
+        run: |
+          FILE="$(ls releases/*.md 2>/dev/null | sort | tail -n 1)"
+          if [ -z "${FILE}" ]; then
+            echo "Release notes file not found under releases/" >&2
+            exit 1
+          fi
+          cp "${FILE}" release_notes.md
+          echo "source=${FILE}" >> "${GITHUB_OUTPUT}"
+          echo "local=release_notes.md" >> "${GITHUB_OUTPUT}"
+
+      - name: Build distributions
+        run: uvx build
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist
+
+      - name: Tag private repository
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "responsiveness-release-bot"
+          git config user.email "infra@responsiveness.example"
+          git tag -a "v${{ steps.version.outputs.value }}" -m "reachml v${{ steps.version.outputs.value }}"
+          git push "https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "v${{ steps.version.outputs.value }}"
+
+      - name: Sync to public repository
+        env:
+          PUBLIC_REPO_PAT: ${{ secrets.PUBLIC_REPO_PAT }}
+          VERSION: ${{ steps.version.outputs.value }}
+        run: |
+          if [ -z "${PUBLIC_REPO_PAT}" ]; then
+            echo "PUBLIC_REPO_PAT secret is not configured" >&2
+            exit 1
+          fi
+
+          PUBLIC_DIR="$(mktemp -d)"
+          git clone --depth=1 "https://${PUBLIC_REPO_PAT}@github.com/${PUBLIC_REPO}.git" "${PUBLIC_DIR}"
+
+          rm -rf "${PUBLIC_DIR}/releases"
+          rm -f "${PUBLIC_DIR}/release_notes.md"
+          rm -rf "${PUBLIC_DIR}/dist"
+
+          rsync -a --delete \
+            --exclude '.git/' \
+            --exclude 'releases/' \
+            --exclude 'release_notes.md' \
+            --exclude 'dist/' \
+            ./ "${PUBLIC_DIR}/"
+
+          cd "${PUBLIC_DIR}"
+          git config user.name "responsiveness-release-bot"
+          git config user.email "infra@responsiveness.example"
+
+          git checkout main || git checkout -b main
+          git add --all
+
+          if git diff --cached --quiet; then
+            echo "No content changes for public repo"
+          else
+            git commit -m "Sync from private publish ${GITHUB_SHA}"
+          fi
+
+          git tag -a "v${VERSION}" -m "reachml v${VERSION}" || true
+          git push origin main
+          git push origin "v${VERSION}"
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.PUBLIC_REPO_PAT }}
+        run: |
+          if [ -z "${GH_TOKEN}" ]; then
+            echo "PUBLIC_REPO_PAT secret is not configured for release creation" >&2
+            exit 1
+          fi
+          gh release create "v${{ steps.version.outputs.value }}" \
+            --repo "${PUBLIC_REPO}" \
+            --title "reachml v${{ steps.version.outputs.value }}" \
+            --notes-file "${{ steps.notes.outputs.local }}" \
+            --target main \
+            --latest
