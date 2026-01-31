@@ -41,25 +41,35 @@ class ReachableSetDatabase:
     _STATS_ATTR_NAME = "stats"
     _STATS_KEYS = ["time", "n_points", "complete"]
 
-    def __init__(self, action_set: ActionSet, path: str = None, **kwargs):
+    def __init__(self, action_set: ActionSet, path: str = None, read_only: bool = False, **kwargs):
         """Initialize a reachable-set database.
 
         Args:
             action_set: Action set for generating reachable sets.
             path: Optional path to an HDF5 file; creates a temp file if None.
+            read_only: If True, skip write-access check and allow parallel reads.
             **kwargs: Optional `precision` (int) and generation `method`.
         """
         assert isinstance(action_set, ActionSet)
         self._action_set = action_set
+        self._read_only = read_only
 
         # attach path
         f = Path(tempfile.mkstemp(suffix=".h5")[1]) if path is None else Path(path)
-        f.parents[0].mkdir(parents=True, exist_ok=True)  # create directory
-        try:
-            with h5py.File(f, "a") as _:
-                pass
-        except FileNotFoundError as err:
-            raise ValueError(f"Cannot write to database file: {f}") from err
+
+        if read_only:
+            # For read-only mode, just verify the file exists
+            if not f.exists():
+                raise FileNotFoundError(f"Database file not found: {f}")
+        else:
+            # For write mode, create directory and verify writability
+            f.parents[0].mkdir(parents=True, exist_ok=True)
+            try:
+                with h5py.File(f, "a") as _:
+                    pass
+            except FileNotFoundError as err:
+                raise ValueError(f"Cannot write to database file: {f}") from err
+
         self._path = f
 
         # attach precision
@@ -94,6 +104,11 @@ class ReachableSetDatabase:
     def method(self) -> str:
         """Generation method: "enumerate" or "sample"."""
         return self._method
+
+    @property
+    def read_only(self) -> bool:
+        """Whether this database is in read-only mode."""
+        return self._read_only
 
     def array_to_key(self, x: np.ndarray) -> str:
         """Compute a stable content hash key for a feature vector.
@@ -225,6 +240,8 @@ class ReachableSetDatabase:
         Returns:
             `pd.DataFrame` with summary statistics (time, n_points, complete).
         """
+        if self._read_only:
+            raise RuntimeError("Cannot generate reachable sets in read-only mode")
         # Note: duplicates per unique mutable pattern are handled efficiently.
         if n_workers is None or n_workers <= 1:
             return self._generate_sequential(X, overwrite=overwrite, **kwargs)
