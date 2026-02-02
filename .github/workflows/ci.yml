@@ -4,11 +4,30 @@ on:
   push:
     branches:
       - main
+    # Run CI only when code, deps, or workflow change.
+    paths:
+      - ".github/workflows/ci.yml"
+      - "reachml/**"
+      - "tests/**"
+      - "pyproject.toml"
+      - "uv.lock"
   pull_request:
+    # Run CI only when code, deps, or workflow change.
+    paths:
+      - ".github/workflows/ci.yml"
+      - "reachml/**"
+      - "tests/**"
+      - "pyproject.toml"
+      - "uv.lock"
   workflow_dispatch:
 
 permissions:
   contents: read
+
+# Cancel in-progress runs for the same ref.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   lint:
@@ -29,6 +48,8 @@ jobs:
   tests:
     name: tests (python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
+    # PRs run only 3.12; main/dispatch run full matrix.
+    if: github.event_name != 'pull_request' || matrix.python-version == '3.12'
     strategy:
       fail-fast: false
       matrix:
@@ -48,6 +69,8 @@ jobs:
   build:
     name: build (sdist/wheel)
     runs-on: ubuntu-latest
+    # Build only on non-PR events.
+    if: github.event_name != 'pull_request'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
