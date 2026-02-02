@@ -46,10 +46,27 @@ jobs:
         run: uvx ruff format --check reachml tests
 
   tests:
-    name: tests (python ${{ matrix.python-version }})
+    name: tests (python 3.12)
     runs-on: ubuntu-latest
     # PRs run only 3.12; main/dispatch run full matrix.
-    if: github.event_name != 'pull_request' || matrix.python-version == '3.12'
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+      - name: Sync project environment
+        run: uv sync --frozen --extra cplex
+      - name: Run tests
+        run: uv run pytest
+
+  tests_full:
+    name: tests (python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    # Full matrix on non-PR events.
+    if: github.event_name != 'pull_request'
     strategy:
       fail-fast: false
       matrix:
