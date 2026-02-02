@@ -1,15 +1,16 @@
-"""
-Test Strategy
+"""Test Strategy
 todo
 """
-import pytest
-import pandas as pd
-import numpy as np
 from itertools import product
-from reachml.paths import tests_dir
+
+import numpy as np
+import pandas as pd
+import pytest
+
 from reachml import *
-from reachml.reachable_set import EnumeratedReachableSet
 from reachml.constraints.onehot import OneHotEncoding
+from reachml.paths import tests_dir
+from reachml.reachable_set import EnumeratedReachableSet
 from reachml.utils import SUPPORTED_SOLVERS
 
 
@@ -113,8 +114,7 @@ def test_enumeration_with_onehot_constraints(limit_type, limit_value, solver):
 
 @pytest.mark.parametrize("solver", SUPPORTED_SOLVERS)
 def test_enumeration_with_onehot_constraints_overlapping(solver):
-    """
-    assume that x1, x2 = (0, 1) is infeasible
+    """Assume that x1, x2 = (0, 1) is infeasible
     this is similar to x2 = 1 -> x1 = 1 so
     :return:
     """

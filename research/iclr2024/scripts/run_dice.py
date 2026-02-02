@@ -1,22 +1,21 @@
-import os
-import sys
-import time
-import psutil
 import argparse
 import contextlib
+import os
 import warnings
+
+import psutil
 
 warnings.simplefilter(action="ignore", category=UserWarning)
 
+from copy import deepcopy
+
+import dice_ml
 import numpy as np
 import pandas as pd
-from tqdm.auto import tqdm
-
-from copy import deepcopy
 from raiutils.exceptions import UserConfigValidationException
-import dice_ml
-from src.paths import *
 from src import fileutils
+from src.paths import *
+from tqdm.auto import tqdm
 
 settings = {
     "data_name": "german",
@@ -83,8 +82,7 @@ explainer = dice_ml.Dice(dice_df, dice_model)
 def get_dice_permitted_range(
     query_instance, binary_features, features_to_vary, action_set
 ):
-    """
-    :param query_instance: can be a dictionary
+    """:param query_instance: can be a dictionary
     :param binary_features:
     :param features_to_vary:
     :param action_set:
@@ -94,7 +92,7 @@ def get_dice_permitted_range(
     lbs = x + action_set.get_bounds(x, bound_type="lb")
     ubs = x + action_set.get_bounds(x, bound_type="ub")
     out = {}
-    for name, lb, ub in zip(names, lbs, ubs):
+    for name, lb, ub in zip(names, lbs, ubs, strict=False):
         if name in features_to_vary:
             if name in binary_features:
                 out[name] = [str(int(lb)), str(int(ub))]
@@ -147,7 +145,7 @@ for idx, row in tqdm(list(unique_df.iterrows())):
             dice_outcomes = (
                 explanation.cf_examples_list[0].final_cfs_df[data.names.y].values
             )
-            for ctf_id, (yp, xp) in enumerate(zip(dice_outcomes, dice_cfs)):
+            for ctf_id, (yp, xp) in enumerate(zip(dice_outcomes, dice_cfs, strict=False)):
                 xp = np.array(xp, dtype=float)
                 new_info = dict(info)
                 new_info.update(
@@ -163,7 +161,7 @@ for idx, row in tqdm(list(unique_df.iterrows())):
         except UserConfigValidationException as e:
             if "No counterfactuals found for any of the query points" in str(e):
                 unique_results.append(info)
-        except Exception as e:
+        except Exception:
             import ipdb
 
             ipdb.set_trace()

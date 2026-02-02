@@ -56,7 +56,7 @@ results = {}
 predictions = clf.predict(data.U)
 
 for idx, (x, y, fx) in tqdm(
-    list(enumerate(zip(data.U, data.y[data.u_idx], predictions)))
+    list(enumerate(zip(data.U, data.y[data.u_idx], predictions, strict=False)))
 ):
     # pull reachable set
     R = db[x]

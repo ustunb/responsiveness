@@ -1,10 +1,10 @@
-"""
-This file contains fixtures to create datasets and action sets for testing enumeration
+"""This file contains fixtures to create datasets and action sets for testing enumeration
 """
 
-import pytest
 import numpy as np
 import pandas as pd
+import pytest
+
 from reachml.action_set import ActionSet
 
 BOOLEAN_TEST_CASES_1D = [

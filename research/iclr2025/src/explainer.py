@@ -1,18 +1,16 @@
 from abc import ABC, abstractmethod
 
-import shap
 import lime
 import numpy as np
 import pandas as pd
-
+import shap
 from tqdm import tqdm
 
 from src.ext.data import BinaryClassificationDataset
 
 
 class ModelExplainer(ABC):
-    """
-    wrapper class used to generate explanations
+    """wrapper class used to generate explanations
     """
     EPSILON = 0.1
 
@@ -58,8 +56,7 @@ class ModelExplainer(ABC):
 
 
 class SHAP_Explainer(ModelExplainer):
-    """
-    wrapper class used to generate explanations
+    """wrapper class used to generate explanations
     """
 
     def __init__(self, model, data, **kwargs):
@@ -87,8 +84,7 @@ class SHAP_Explainer(ModelExplainer):
 
 
 class LIME_Explainer(ModelExplainer):
-    """
-    wrapper class used to generate explanations
+    """wrapper class used to generate explanations
     """
 
     def __init__(self, model, data, **kwargs):

@@ -1,26 +1,24 @@
-import sys
-import os
-import time
-import psutil
 import argparse
 import contextlib
+import os
+import time
 import warnings
+
+import psutil
 
 warnings.simplefilter(action="ignore", category=FutureWarning)
 
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import StandardScaler
 import recourse as rs
-from tqdm.auto import tqdm
-
-from src.paths import *
+from sklearn.preprocessing import StandardScaler
 from src import fileutils
+from src.paths import *
+from tqdm.auto import tqdm
 
 
 def undo_coefficient_scaling(clf=None, coefficients=None, intercept=0.0, scaler=None):
-    """
-    given coefficients and data for scaled data, returns coefficients and intercept for unnormalized data
+    """Given coefficients and data for scaled data, returns coefficients and intercept for unnormalized data
 
     w = w_scaled / sigma
     b = b_scaled - (w_scaled / sigma).dot(mu) = b_scaled - w.dot(mu)
@@ -98,7 +96,7 @@ w, b = undo_coefficient_scaling(clf, scaler=scaler)
 # setup action set for AR
 LB = data.X.min(axis=0)
 UB = data.X.max(axis=0)
-bounds = {n: (lb, ub, "absolute") for n, lb, ub in zip(data.names.X, LB, UB)}
+bounds = {n: (lb, ub, "absolute") for n, lb, ub in zip(data.names.X, LB, UB, strict=False)}
 A = rs.ActionSet(X=data.X, names=data.names.X, custom_bounds=bounds)
 A.step_type = "absolute"
 for a in action_set:
@@ -111,7 +109,7 @@ A.set_alignment(coefficients=w, intercept=b)
 results = []
 null_action = np.zeros(data.d)
 nan_action = np.repeat(np.nan, data.d)
-for idx, (x, fx) in enumerate(tqdm(list(zip(data.X, predictions)))):
+for idx, (x, fx) in enumerate(tqdm(list(zip(data.X, predictions, strict=False)))):
     if fx > 0:
         results.append(
             {

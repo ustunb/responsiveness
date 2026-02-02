@@ -138,6 +138,7 @@ class DirectionalLinkage(ActionabilityConstraint):
     def add_to_cpx(self, cpx, indices, x):
         """Add constraints and variables for this linkage to a CPLEX model."""
         from cplex import Cplex, SparsePair
+
         from ..mip.backends.cplex_utils import combine, get_cpx_variable_args
 
         assert isinstance(cpx, Cplex)
@@ -192,6 +193,7 @@ class DirectionalLinkage(ActionabilityConstraint):
     def add_to_scip(self, scip, indices, x):
         """Add constraints and variables for this linkage to a SCIP model."""
         from pyscipopt import Model
+
         from ..mip.backends.scip_utils import combine
 
         assert isinstance(scip, Model)

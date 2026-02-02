@@ -1,7 +1,7 @@
-import sys
-import os
-import psutil
 import argparse
+import os
+
+import psutil
 
 settings = {
     "data_name": "german",
@@ -23,9 +23,10 @@ if process_type not in ("pycharm"):
     args, _ = parser.parse_known_args()
     settings.update(vars(args))
 
-from reachml import ReachableSetDatabase
-from src.paths import *
 from src import fileutils
+from src.paths import *
+
+from reachml import ReachableSetDatabase
 
 data = fileutils.load(get_data_file(**settings))
 action_set = fileutils.load(get_action_set_file(**settings))

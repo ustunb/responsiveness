@@ -1,8 +1,7 @@
-import sys
+import argparse
 import os
 
 import psutil
-import argparse
 from src import fileutils
 from src.paths import *
 

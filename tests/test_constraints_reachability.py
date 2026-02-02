@@ -1,14 +1,14 @@
-"""
-Test Strategy
+"""Test Strategy
 todo
 """
-import pytest
-import pandas as pd
 import numpy as np
+import pandas as pd
+import pytest
+
 from reachml import *
-from reachml.reachable_set import EnumeratedReachableSet
-from reachml.paths import tests_dir
 from reachml.constraints.reachability import ReachabilityConstraint
+from reachml.paths import tests_dir
+from reachml.reachable_set import EnumeratedReachableSet
 from reachml.utils import SUPPORTED_SOLVERS
 
 
@@ -190,11 +190,9 @@ def test_vacuous_reachability_constraints_with_overlap(solver):
 
 @pytest.mark.parametrize("solver", SUPPORTED_SOLVERS)
 def test_reachability_constraints_for_fixed_point(dataset_actionset_2d, solver):
-    """
-    check to make sure that we can remove all other points from current point using reachability matrix
+    """Check to make sure that we can remove all other points from current point using reachability matrix
     :return:
     """
-
     X = dataset_actionset_2d["X"]
     A = dataset_actionset_2d["A"]
     expected_reachable_set = dataset_actionset_2d["R"]
@@ -232,12 +230,10 @@ def test_reachability_constraints_for_fixed_point(dataset_actionset_2d, solver):
 
 @pytest.mark.parametrize("solver", SUPPORTED_SOLVERS)
 def test_enumeration_with_overlapping(solver):
-    """
-    assume that x1, x2 = (0, 1) is infeasible
+    """Assume that x1, x2 = (0, 1) is infeasible
     this is similar to x2 = 1 -> x1 = 1 so
     :return:
     """
-
     X = pd.DataFrame(
         columns=["x0", "x1", "x2"],
         data=[
@@ -305,11 +301,9 @@ def test_enumeration_with_overlapping(solver):
 
 @pytest.mark.parametrize("solver", SUPPORTED_SOLVERS)
 def test_enumeration_for_reachability_on_onehot_encoding(solver):
-    """
-    check that we can use reachability constraints to force
+    """Check that we can use reachability constraints to force
     at most 1 of (x1, x2, x3) to be on
     """
-
     X = pd.DataFrame(
         columns=["x0", "x1", "x2"], data=[[0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]]
     )
@@ -365,11 +359,9 @@ def test_enumeration_for_reachability_on_onehot_encoding(solver):
 
 @pytest.mark.parametrize("solver", SUPPORTED_SOLVERS)
 def test_enumeration_for_reachability_on_ordinal_encoding_with_1step(solver):
-    """
-    check that we can use reachability constraints to force
+    """Check that we can use reachability constraints to force
     at most 1 of (x1, x2, x3) to be on
     """
-
     X = pd.DataFrame(
         columns=["x0", "x1", "x2"], data=[[0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]]
     )
@@ -412,14 +404,12 @@ def test_enumeration_for_reachability_on_ordinal_encoding_with_1step(solver):
 
 @pytest.mark.parametrize("solver", SUPPORTED_SOLVERS)
 def test_enumeration_for_reachability_on_thermometer_encoding(solver):
-    """
-    check that we can use reachability constraints to enforce therometer encoding
+    """Check that we can use reachability constraints to enforce therometer encoding
         x1 = 1[x ≥ v1]
         x2 = 1[x ≥ v2]
         x3 = 1[x ≥ v3]
     where v[1] ≤ v[2] ≤ v[3]
     """
-
     X = pd.DataFrame(
         columns=["x0", "x1", "x2"], data=[[0, 0, 0], [1, 0, 0], [1, 1, 0], [1, 1, 1]]
     )
@@ -475,14 +465,12 @@ def test_enumeration_for_reachability_on_thermometer_encoding(solver):
 
 @pytest.mark.parametrize("solver", SUPPORTED_SOLVERS)
 def test_enumeration_for_reachability_on_thermometer_encoding_monotonic(solver):
-    """
-    check that we can use reachability constraints to enforce therometer encoding
+    """Check that we can use reachability constraints to enforce therometer encoding
         x1 = 1[x ≥ v1]
         x2 = 1[x ≥ v2]
         x3 = 1[x ≥ v3]
     where v[1] ≤ v[2] ≤ v[3]
     """
-
     X = pd.DataFrame(columns=["x0", "x1", "x2"], data=[[0, 0, 0], [1, 0, 0], [1, 1, 1]])
 
     values = np.array(

@@ -1,5 +1,4 @@
-"""
-Test Strategy
+"""Test Strategy
 ----
 target_type: ["int", "bool", "float"]
 target_actionability: [True, False]
@@ -9,13 +8,15 @@ constraints: [1, multiple_independent, multiple_overlapping]
 action_on_source_violates_target_type: [True, False]
 action_on_source_violates_target_bounds: [True, False]
 """
-import pytest
-import pandas as pd
-import numpy as np
 import itertools
+
+import numpy as np
+import pandas as pd
+import pytest
+
 from reachml import ActionSet
-from reachml.reachable_set import EnumeratedReachableSet
 from reachml.constraints.directional_linkage import DirectionalLinkage
+from reachml.reachable_set import EnumeratedReachableSet
 from reachml.utils import SUPPORTED_SOLVERS
 
 sortrows = lambda v: v[np.lexsort(v.T, axis=0), :]

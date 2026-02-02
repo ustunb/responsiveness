@@ -1,14 +1,13 @@
-import sys
-import os
-import psutil
 import argparse
+import os
+import sys
+
+import psutil
 
 sys.path.append(os.getcwd())
-from src.paths import *
-
-from src.ext import fileutils
-
 from sklearn.pipeline import Pipeline
+from src.ext import fileutils
+from src.paths import *
 
 settings = {
     "data_name": "givemecredit_cts",

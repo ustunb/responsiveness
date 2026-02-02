@@ -1,15 +1,16 @@
-import numpy as np
-import pytest
-import sys
 import os
+import sys
+
+import numpy as np
 import pandas as pd
+import pytest
 
 sys.path.append(os.getcwd())
 
 from reachml.action_element import *
 from reachml.action_set import ActionSet
-from reachml.sampling import *
 from reachml.constraints import OneHotEncoding
+from reachml.sampling import *
 from reachml.utils import SUPPORTED_SOLVERS
 
 testing_params = [("Actionable", "Actionable"), ("Actionable", "Inactionable"), ("Inactionable", "Actionable"),

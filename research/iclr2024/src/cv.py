@@ -1,10 +1,10 @@
-"""
-Helper functions to generate cross-validation indices for binary classification
+"""Helper functions to generate cross-validation indices for binary classification
 """
 
 import re
+
 import numpy as np
-from sklearn.model_selection import StratifiedKFold, KFold
+from sklearn.model_selection import KFold, StratifiedKFold
 
 #### fold id parsing / validation ####
 
@@ -19,8 +19,7 @@ OUTER_CV_PARSER = re.compile(OUTER_CV_PATTERN)
 INNER_CV_PARSER = re.compile(INNER_CV_PATTERN)
 
 def parse_fold_id(fold_id):
-    """
-    #todo add spec
+    """#todo add spec
     :param fold_id:
     :return:
     """
@@ -43,12 +42,10 @@ def parse_fold_id(fold_id):
     return total_folds, replicate_idx, fold_idx_inner_cv, total_folds_inner_cv
 
 def validate_fold_id(fold_id):
-    """
-    #todo add spec
+    """#todo add spec
     :param fold_id:
     :return:
     """
-
     fold_id = fold_id.strip().upper()
     parsed = INNER_CV_PARSER.match(fold_id)
 
@@ -63,8 +60,7 @@ def validate_fold_id(fold_id):
     return parsed.string
 
 def is_inner_fold_id(fold_id):
-    """
-    #todo add spec
+    """#todo add spec
     :param fold_id:
     :return:
     """
@@ -95,8 +91,7 @@ def to_fold_id(total_folds, replicate_idx = 1, fold_idx_inner_cv = None, total_f
 #### fold generation ####
 
 def generate_folds(n_folds = 5, n_samples = None, strata = None):
-    """
-    generate fold indices for standard or stratified K-fold CV
+    """Generate fold indices for standard or stratified K-fold CV
 
     :param n_folds: number of folds (i.e. K in K-fold CV)
                     must be a positive integer >= 2
@@ -132,8 +127,7 @@ def generate_folds(n_folds = 5, n_samples = None, strata = None):
     return folds
 
 def generate_cvindices(n_samples = None, strata = None, total_folds_for_cv = [1, 2, 3, 5, 10], total_folds_for_inner_cv = [2, 3, 5], replicates = 3, seed = None):
-    """
-    :param n_samples:
+    """:param n_samples:
     :param strata:
     :param total_folds_for_cv:
     :param total_folds_for_inner_cv:
@@ -141,7 +135,6 @@ def generate_cvindices(n_samples = None, strata = None, total_folds_for_cv = [1,
     :param seed:
     :return:
     """
-
     # type checks
     assert isinstance(total_folds_for_cv, list) and len(total_folds_for_cv) > 0 and (len(total_folds_for_cv) == len(set(total_folds_for_cv)))
     assert (total_folds_for_inner_cv is None) or (isinstance(total_folds_for_inner_cv, list) and len(total_folds_for_inner_cv) == len(set(total_folds_for_inner_cv)))
@@ -194,15 +187,13 @@ def generate_cvindices(n_samples = None, strata = None, total_folds_for_cv = [1,
 #### checks and validation ####
 
 def validate_folds(folds, fold_id = None, n_samples = None, stratified = True):
-    """
-    check folds used for cross-validation
+    """Check folds used for cross-validation
     :param folds:
     :param fold_id:
     :param n_samples:
     :param stratified:
     :return: True
     """
-
     # reshape folds
     assert isinstance(folds, np.ndarray), 'folds should be array-like'
     assert folds.ndim == 1 and len(folds) >= 1
@@ -240,12 +231,10 @@ def validate_folds(folds, fold_id = None, n_samples = None, stratified = True):
     return folds
 
 def validate_cvindices(cvindices, stratified = True):
-    """
-    will drop fold_ids for inner cv if the corresponding outer_cv fold_id does not exist
+    """Will drop fold_ids for inner cv if the corresponding outer_cv fold_id does not exist
     :param cvindices:
     :return:
     """
-
     #check that fold_ids are valid
     all_fold_ids = list(cvindices.keys())
     for fold_id in all_fold_ids:
@@ -288,8 +277,7 @@ def validate_cvindices(cvindices, stratified = True):
     return validated_indices
 
 def check_strata(strata):
-    """
-    check vector used for stratified CV
+    """Check vector used for stratified CV
     :param strata:
     :return:
     """

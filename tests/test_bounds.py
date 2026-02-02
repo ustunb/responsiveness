@@ -1,9 +1,10 @@
-import pytest
-import pandas as pd
 import numpy as np
-from reachml.paths import tests_dir
+import pandas as pd
+import pytest
+
 from reachml.action_set import ActionSet
 from reachml.constraints import *
+from reachml.paths import tests_dir
 
 
 @pytest.fixture(params=["credit"])

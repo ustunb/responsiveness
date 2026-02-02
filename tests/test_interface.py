@@ -1,9 +1,10 @@
-import pytest
 import numpy as np
 import pandas as pd
-from reachml.paths import tests_dir
+import pytest
+
 from reachml.action_set import ActionSet
 from reachml.constraints import *
+from reachml.paths import tests_dir
 
 
 @pytest.fixture(params=["credit"])
@@ -90,7 +91,7 @@ def test_add_drop_constraint(test_case, constraint_info):
         # cannot add a constraint with the same parameters either
         same_cons = constraintClass(names=info["names"], **info["parameters"])
         assert cons == same_cons
-        assert not cons is same_cons
+        assert cons is not same_cons
 
         with pytest.raises(AssertionError):
             A.constraints.add(same_cons)

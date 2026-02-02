@@ -106,6 +106,7 @@ class IfThenConstraint(ActionabilityConstraint):
     def add_to_cpx(self, cpx, indices, x):
         """Add if-then constraints to a CPLEX model using a big-M formulation."""
         from cplex import Cplex, SparsePair
+
         from ..mip.backends.cplex_utils import combine, get_cpx_variable_args
         assert isinstance(cpx, Cplex)
         vars = cpx.variables
@@ -163,6 +164,7 @@ class IfThenConstraint(ActionabilityConstraint):
     def add_to_scip(self, scip, indices, x):
         """Add if-then constraints to a SCIP model using a big-M formulation."""
         from pyscipopt import Model
+
         from ..mip.backends.scip_utils import combine
         assert isinstance(scip, Model)
 

@@ -1,10 +1,10 @@
-"""
-Test Strategy
+"""Test Strategy
 todo
 """
 
-import pytest
 import pandas as pd
+import pytest
+
 from reachml import *
 from reachml.constraints.ifthen import *
 from reachml.utils import SUPPORTED_SOLVERS

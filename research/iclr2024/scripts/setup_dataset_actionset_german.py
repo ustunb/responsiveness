@@ -1,23 +1,23 @@
 # fmt: off
-import os
-import sys
 
 import numpy as np
 import pandas as pd
+
 pd.set_option('display.width', 1000)
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
 
 
-from src.paths import *
+import pprint as pp
+
+from scripts.utils import check_processing_loss, tabulate_actions, tally
 from src import fileutils
 from src.data import BinaryClassificationDataset
+from src.paths import *
+from src.training import extract_predictor
+
 from reachml import ActionSet, ReachableSetDatabase
 from reachml.constraints import *
-
-import pprint as pp
-from scripts.utils import check_processing_loss, tabulate_actions, tally, tally_predictions
-from src.training import extract_predictor
 
 settings = {
     "data_name": "german",

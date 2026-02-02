@@ -1,6 +1,6 @@
-import pytest
-import pandas as pd
 import numpy as np
+import pandas as pd
+import pytest
 
 from reachml.action_set import ActionSet
 from reachml.constraints import ThermometerEncoding

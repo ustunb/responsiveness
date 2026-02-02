@@ -1,5 +1,4 @@
-"""
-This file defines paths for key directories and files. Contents include:
+"""This file defines paths for key directories and files. Contents include:
 1. Directory Names: Path objects that specify the directories where we store code, data, results, etc.
 2. File Name Generators: functions used to programatically name processed datasets, results, graphs etc.
 """
@@ -39,8 +38,7 @@ results_dir.mkdir(exist_ok=True)
 
 # Naming Functions
 def get_data_csv_file(data_name, **kwargs):
-    """
-    :param data_name: string containing name of the dataset
+    """:param data_name: string containing name of the dataset
     :param kwargs: used to catch other args when unpacking dictionaries
                    this allows us to call this function as get_results_file_name(**settings)
     :return:
@@ -51,8 +49,7 @@ def get_data_csv_file(data_name, **kwargs):
 
 
 def get_data_file(data_name, action_set_name, **kwargs):
-    """
-    :param data_name: string containing name of the dataset
+    """:param data_name: string containing name of the dataset
     :param kwargs: used to catch other args when unpacking dictionaries
                    this allows us to call this function as get_results_file_name(**settings)
     :return:
@@ -63,8 +60,7 @@ def get_data_file(data_name, action_set_name, **kwargs):
 
 
 def get_action_set_file(data_name, action_set_name, **kwargs):
-    """
-    :param data_name: string containing name of the dataset
+    """:param data_name: string containing name of the dataset
     :return: file name
     """
     assert isinstance(data_name, str) and len(data_name) > 0
@@ -82,8 +78,7 @@ def get_model_file(data_name, action_set_name, model_type, is_raw=False, **kwarg
 def get_explainer_file(
     data_name, model_type, explainer_type, action_set_name=None, **kwargs
 ):
-    """
-    returns file name of a explainer object (i.e. lime or shap)
+    """Returns file name of a explainer object (i.e. lime or shap)
 
     :param data_name: dataset name
     :param model_type: model type
@@ -149,8 +144,7 @@ def get_metrics_file(
 
 
 def get_reachable_db_file(data_name, action_set_name, **kwargs):
-    """
-    returns file name of a reachable set dataset.
+    """Returns file name of a reachable set dataset.
 
     :param data_name: string containing name of the dataset
     :param action_set_name: string containing name of the action set
@@ -166,8 +160,7 @@ def get_reachable_db_file(data_name, action_set_name, **kwargs):
 
 
 def get_scorer_file(data_name, action_set_name, **kwargs):
-    """
-    returns file name of a reachable set dataset.
+    """Returns file name of a reachable set dataset.
 
     :param data_name: string containing name of the dataset
     :param action_set_name: string containing name of the action set
@@ -205,8 +198,7 @@ def get_plot_data_file(
 def get_plot_file(
     data_name, action_set_name, model_type, explainer_type, plot_name, **kwargs
 ):
-    """
-    return file name of a plot (without extension, extension set by plotting script)
+    """Return file name of a plot (without extension, extension set by plotting script)
     """
     assert isinstance(data_name, str) and len(data_name) > 0
     assert isinstance(action_set_name, str) and len(action_set_name) > 0

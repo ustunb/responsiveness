@@ -1,7 +1,8 @@
-import pytest
 import numpy as np
-from reachml.reachable_set import EnumeratedReachableSet
+import pytest
+
 from reachml.constraints import *
+from reachml.reachable_set import EnumeratedReachableSet
 from reachml.utils import SUPPORTED_SOLVERS
 
 

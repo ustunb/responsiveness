@@ -1,9 +1,9 @@
 import os
-import sys
 import shutil
-
+import sys
 import warnings
 from pathlib import Path
+
 from PyPDF2 import PdfFileReader, PdfFileWriter
 
 # Path of the GitHub repository
@@ -22,9 +22,7 @@ def make_report(template_file,
                 remove_build = False,
                 creation_script = None,
                 venv_dir = None):
-
-    """
-    Create an RMarkdown report
+    """Create an RMarkdown report
 
     :param template_file: Path of the RMarkdown template
                           This should be a file ending in .Rmd or .Rnw
@@ -64,7 +62,6 @@ def make_report(template_file,
 
     :return: pdf_file: Path of the PDF file produced after compilation
     """
-
     # check required files
     template_file = Path(template_file)
     assert template_file.exists()
@@ -150,8 +147,7 @@ def make_report(template_file,
 
 
 def open_file(file_name):
-    """
-    open a file using the System viewer
+    """Open a file using the System viewer
     :param file_name: path of the file
     :return: None
     """
@@ -162,8 +158,7 @@ def open_file(file_name):
 
 
 def merge_pdfs(pdf_files, merged_file, delete_after_merge = False):
-    """
-    Merge a list of PDFs into a single merged PDF.
+    """Merge a list of PDFs into a single merged PDF.
     Merged PDF will only include PDFs that are found on disk.
 
     :param pdf_files: List of PDF files to merged. List elements must be strings or paths pointing to PDF files. Function will issue a warning if any file does not exist on disk.

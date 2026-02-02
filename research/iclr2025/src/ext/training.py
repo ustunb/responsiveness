@@ -67,8 +67,7 @@ CLF_MAP = {
 def sample_processing(
     data, label_encoding=None, rescale=False, rebalance=None, seed=None
 ):
-    """
-    Process training and testing data, performing optional label encoding, rescaling, and rebalancing.
+    """Process training and testing data, performing optional label encoding, rescaling, and rebalancing.
 
     Args:
         data: BinaryClassificationDataset.
@@ -133,8 +132,7 @@ def sample_processing(
 
 
 def _build_output(processed, model, model_type):
-    """
-    Helper function for building standard output dictionary for training functions.
+    """Helper function for building standard output dictionary for training functions.
 
     Args:
         processed (dict): Output dictionary from sample_processing.
@@ -163,8 +161,7 @@ def train_model(
     rebalance=None,
     **kwargs,
 ):
-    """
-    Train a model of the given class using randomized search for hyperparameters and wrap with a scaler if provided.
+    """Train a model of the given class using randomized search for hyperparameters and wrap with a scaler if provided.
 
     Args:
         data: BinaryClassificationDataset.
@@ -231,8 +228,7 @@ def train_model(
 
 
 def get_clf_stats(X, y, model):
-    """
-    Compute classification statistics for the given model and data.
+    """Compute classification statistics for the given model and data.
 
     Args:
         X (np.ndarray): Feature matrix.
@@ -264,8 +260,7 @@ def get_clf_stats(X, y, model):
 
 
 def extract_predictor(clf, scaler=None):
-    """
-    Return a predictor function based on the classifier, optionally applying scaling.
+    """Return a predictor function based on the classifier, optionally applying scaling.
 
     Args:
         clf: Trained classifier.
@@ -284,8 +279,7 @@ def extract_predictor(clf, scaler=None):
 
 
 def probs(model, pt, outcome_prob=1, scaler=None):
-    """
-    Compute and format predicted probability for a single data point.
+    """Compute and format predicted probability for a single data point.
 
     Args:
         model: Trained classifier with predict_proba method.

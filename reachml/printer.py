@@ -5,8 +5,7 @@ import pandas as pd
 
 
 class ReachableSetPrinter(object):
-    """
-    Working class to print the points in a ReachableSets in a table that can be
+    """Working class to print the points in a ReachableSets in a table that can be
     included in a publication or website. This can eventually be appended to ReachableSet
     """
 
@@ -16,7 +15,7 @@ class ReachableSetPrinter(object):
         raise NotImplementedError()
 
     def to_flat_df(self):
-        """converts points to a data.frame"""
+        """Converts points to a data.frame"""
         raise NotImplementedError()
         tex_columns = ["features", "x", "x_new"]
         tex_df = self._df[tex_columns]
@@ -54,8 +53,7 @@ class ReachableSetPrinter(object):
         return flat_df.set_index("item")
 
     def to_latex(self, name_formatter="\\textit"):
-        """
-        converts current Flipset to Latex table
+        """Converts current Flipset to Latex table
         :param name_formatter:
         :return:
         """

@@ -1,12 +1,13 @@
-import sys
 import os
-from psutil import Process
+import sys
 from argparse import ArgumentParser
+
+from psutil import Process
 
 # script / source code imports
 sys.path.append(os.getcwd()) # add repo dir to path to import source code
-from src.paths import *
 from src.ext import fileutils
+from src.paths import *
 
 # script settings / default command line arguments
 settings = {
@@ -31,8 +32,7 @@ constraint_file = output_dir / f"{settings['data_name']}_actionset_constraints.t
 
 
 def sanitize_names(name, wrapper_function="textfn"):
-    """
-    :param name: string for feature name
+    """:param name: string for feature name
     :param latex function name to apply to features:
     :return:
     """
@@ -49,8 +49,7 @@ def sanitize_names(name, wrapper_function="textfn"):
 
 
 def to_latex(action_set, reorder=False, header_wrapper_function="textheader"):
-    """
-    :param action_set: ActionSet object
+    """:param action_set: ActionSet object
     :return: formatted latex table summarizing the action set for publications
     """
     df = action_set.df

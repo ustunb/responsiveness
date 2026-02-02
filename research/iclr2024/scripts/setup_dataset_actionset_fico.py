@@ -1,22 +1,20 @@
-import os
-import sys
 
-import pandas as pd
-import numpy as np
 import itertools
-from src.paths import *
-from src import fileutils
-from src.data import BinaryClassificationDataset
-from reachml import ActionSet, ReachableSetDatabase
 import pprint as pp
-from reachml.constraints import *
+
+import numpy as np
+import pandas as pd
 from scripts.utils import (
     check_processing_loss,
     tabulate_actions,
-    tally,
-    tally_predictions,
 )
+from src import fileutils
+from src.data import BinaryClassificationDataset
+from src.paths import *
 from src.training import extract_predictor
+
+from reachml import ActionSet, ReachableSetDatabase
+from reachml.constraints import *
 
 settings = {
     "data_name": "fico",

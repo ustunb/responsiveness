@@ -1,7 +1,6 @@
 import pathlib
 
 import pandas as pd
-
 from scripts import utils as utils
 
 abs_path = pathlib.Path(__file__).parent.resolve()

@@ -1,13 +1,13 @@
-"""
-Test Strategy
+"""Test Strategy
 todo
 """
-import pytest
-import pandas as pd
 import numpy as np
+import pandas as pd
+import pytest
+
 from reachml import *
-from reachml.reachable_set import EnumeratedReachableSet
 from reachml.constraints.ordinal import OrdinalEncoding
+from reachml.reachable_set import EnumeratedReachableSet
 from reachml.utils import SUPPORTED_SOLVERS
 
 sortrows = lambda v: v[np.lexsort(v.T, axis=0), :]
