@@ -48,6 +48,7 @@ examples/paper/results
 
 # Notes
 *.ft
+CLAUDE.md
 
 # odyssey
 *.command
