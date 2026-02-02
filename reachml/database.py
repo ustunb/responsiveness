@@ -95,12 +95,13 @@ class ReachableSetDatabase:
     def array_to_key(self, x: np.ndarray) -> str:
         """Compute a stable content hash key for a feature vector.
 
-        Rounds `x` to `precision` digits using a float16/32 container before
-        hashing to reduce sensitivity to tiny numeric differences.
+        Rounds `x` to `precision` digits, normalizes negative zeros, and uses
+        explicit little-endian byte order for cross-platform consistency.
         """
-        float_dtype = np.float16 if self._precision <= 4 else np.float32
-        b = np.array(x, dtype=float_dtype).round(self._precision).tobytes()
-        return hashlib.sha256(b).hexdigest()
+        rounded = np.asarray(x, dtype=np.float64).round(self._precision)
+        rounded = np.where(rounded == 0, 0.0, rounded)  # normalize -0.0 to 0.0
+        canonical = rounded.astype("<f8")  # little-endian float64
+        return hashlib.sha256(canonical.tobytes()).hexdigest()
 
     def __len__(self) -> int:
         """Number of distinct points for which we have a reachable set."""
