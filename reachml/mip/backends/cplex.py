@@ -22,11 +22,14 @@ from .cplex_utils import (
 
 
 class CplexBackend(MIPBackend):
+    """CPLEX solver backend implementation."""
+
     solver_name = "cplex"
 
     def build_model(
         self, action_set: ActionSet, x: np.ndarray, actionable_indices: List[int]
     ) -> Tuple[object, object]:
+        """Build and return a CPLEX model and indices."""
         cpx = Cplex()
         cpx.set_problem_type(cpx.problem_type.MILP)
         cpx.objective.set_sense(cpx.objective.sense.minimize)
@@ -131,6 +134,7 @@ class CplexBackend(MIPBackend):
         return cpx, indices
 
     def configure(self, model: Cplex, print_flag: bool) -> Cplex:
+        """Configure solver parameters for a model."""
         p = model.parameters
         p.emphasis.numerical.set(1)
         p.mip.tolerances.integrality.set(1e-7)
@@ -147,18 +151,22 @@ class CplexBackend(MIPBackend):
         return model
 
     def add_constraints(self, model, indices, action_set: ActionSet, x: np.ndarray):
+        """Add action set constraints to the model."""
         for con in action_set.constraints:
             model, indices = con.add_to_cpx(cpx=model, indices=indices, x=x)
         return model, indices
 
     # Solve/inspect
     def solve(self, model: Cplex) -> None:
+        """Solve the model in-place."""
         model.solve()
 
     def has_solution(self, model: Cplex) -> bool:
+        """Return True if the model has a solution."""
         return has_solution(model)
 
     def read_vectors(self, model: Cplex, indices, names: List[str]) -> Dict[str, np.ndarray]:
+        """Read solution vectors for the given names."""
         out: Dict[str, np.ndarray] = {}
         for nm in names:
             out[nm] = np.array(model.solution.get_values(indices.names[nm]))
@@ -172,6 +180,7 @@ class CplexBackend(MIPBackend):
         actionable_indices: List[int],
         settings: MIPSettings,
     ) -> Tuple[object, object, int]:
+        """Add nogood constraints to exclude provided actions."""
         vars = model.variables
         cons = model.linear_constraints
 
@@ -205,9 +214,7 @@ class CplexBackend(MIPBackend):
             ),
             "delta_sign": get_cpx_variable_args(
                 obj=0.0,
-                name=[
-                    f"delta[{j, k}]_sign" for k in point_indices for j in actionable_indices
-                ],
+                name=[f"delta[{j, k}]_sign" for k in point_indices for j in actionable_indices],
                 lb=0.0,
                 ub=1.0,
                 vtype="B",
@@ -216,8 +223,6 @@ class CplexBackend(MIPBackend):
 
         vars.add(**reduce(combine, variable_args.values()))
         indices.append_variables(variable_args)
-        names = indices.names
-
         for _idx, (k, ak, Dp_k, Dn_k) in enumerate(
             zip(point_indices, actions, D_pos, D_neg, strict=False)
         ):
@@ -254,17 +259,13 @@ class CplexBackend(MIPBackend):
                 )
                 cons.add(
                     names=[f"nogood_neg_if_{j}_{k}"],
-                    lin_expr=[
-                        SparsePair(ind=[neg, sign], val=[1.0, float(Dn_k[idx_j])])
-                    ],
+                    lin_expr=[SparsePair(ind=[neg, sign], val=[1.0, float(Dn_k[idx_j])])],
                     senses="L",
                     rhs=[float(Dn_k[idx_j])],
                 )
                 cons.add(
                     names=[f"nogood_dist_{j}_{k}"],
-                    lin_expr=[
-                        SparsePair(ind=[c_j, pos, neg], val=[1.0, -1.0, 1.0])
-                    ],
+                    lin_expr=[SparsePair(ind=[c_j, pos, neg], val=[1.0, -1.0, 1.0])],
                     senses="E",
                     rhs=[float(ak[idx_j])],
                 )
@@ -273,6 +274,7 @@ class CplexBackend(MIPBackend):
         return model, indices, len(A_nogood)
 
     def stats(self, model: Cplex) -> Dict:
+        """Return solver statistics for the model."""
         return get_mip_stats(model)
 
     # Generic constraint operations
@@ -285,17 +287,27 @@ class CplexBackend(MIPBackend):
         sense: str,
         rhs: float,
     ) -> None:
+        """Add a single linear constraint to the model."""
         cons = model.linear_constraints
         var_names = []
         coeffs = []
         for group, idx, coef in terms:
             var_names.append(indices.names[group][idx])
             coeffs.append(float(coef))
-        cons.add(names=[name], lin_expr=[SparsePair(ind=var_names, val=coeffs)], senses=[sense], rhs=[float(rhs)])
+        cons.add(
+            names=[name],
+            lin_expr=[SparsePair(ind=var_names, val=coeffs)],
+            senses=[sense],
+            rhs=[float(rhs)],
+        )
 
-    def delete_constraint(self, model: Cplex, indices: CplexGroupedVariableIndices, name: str) -> None:
+    def delete_constraint(
+        self, model: Cplex, indices: CplexGroupedVariableIndices, name: str
+    ) -> None:
+        """Delete a linear constraint by name."""
         model.linear_constraints.delete(name)
 
     def solution_status(self, model: Cplex) -> str:
+        """Return solver-native solution status."""
         info = get_mip_stats(model)
         return str(info.get("status", "unknown"))

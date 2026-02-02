@@ -3,10 +3,14 @@
 from __future__ import annotations
 
 from functools import reduce
+from typing import TYPE_CHECKING
 
 import numpy as np
 
 from .abstract import ActionabilityConstraint
+
+if TYPE_CHECKING:
+    from pyscipopt import Model
 
 
 class MutabilitySwitch(ActionabilityConstraint):
@@ -104,6 +108,7 @@ class MutabilitySwitch(ActionabilityConstraint):
         from cplex import Cplex, SparsePair
 
         from ..mip.backends.cplex_utils import combine, get_cpx_variable_args
+
         assert isinstance(cpx, Cplex)
         vars = cpx.variables
         cons = cpx.linear_constraints
@@ -195,6 +200,7 @@ class MutabilitySwitch(ActionabilityConstraint):
         from pyscipopt import Model, quicksum
 
         from ..mip.backends.scip_utils import combine
+
         assert isinstance(scip, Model)
 
         # Adapt and resolve indices/vars

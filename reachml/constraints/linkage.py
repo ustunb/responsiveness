@@ -92,6 +92,7 @@ class LinkActions(ActionabilityConstraint):
     def add_to_cpx(self, cpx, indices, x):
         """Add linear equalities linking source to targets in CPLEX."""
         from cplex import Cplex, SparsePair
+
         assert isinstance(cpx, Cplex)
         cons = cpx.linear_constraints
         self.adapt(x)
@@ -111,6 +112,7 @@ class LinkActions(ActionabilityConstraint):
     def add_to_scip(self, scip, indices, x):
         """Add linear equalities linking source to targets in SCIP."""
         from pyscipopt import Model
+
         assert isinstance(scip, Model)
         self.adapt(x)
         pivot_index = self.indices[0]

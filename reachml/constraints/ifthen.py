@@ -58,6 +58,7 @@ class Condition(object):
 
 class IfThenConstraint(ActionabilityConstraint):
     """Constraint enforcing a then-condition when an if-condition holds."""
+
     def __init__(self, if_condition, then_condition, parent=None):
         """Initialize the constraint with `if_condition` and `then_condition`."""
         self._if_condition = if_condition
@@ -108,6 +109,7 @@ class IfThenConstraint(ActionabilityConstraint):
         from cplex import Cplex, SparsePair
 
         from ..mip.backends.cplex_utils import combine, get_cpx_variable_args
+
         assert isinstance(cpx, Cplex)
         vars = cpx.variables
         cons = cpx.linear_constraints
@@ -166,6 +168,7 @@ class IfThenConstraint(ActionabilityConstraint):
         from pyscipopt import Model
 
         from ..mip.backends.scip_utils import combine
+
         assert isinstance(scip, Model)
 
         # Compute indices/values

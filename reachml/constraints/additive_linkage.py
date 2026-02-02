@@ -109,6 +109,7 @@ class AdditiveLinkage(ActionabilityConstraint):
     def add_to_cpx(self, cpx, indices, x):
         """Add the additive linkage constraint to a CPLEX model."""
         from cplex import Cplex, SparsePair
+
         assert isinstance(cpx, Cplex)
         cons = cpx.linear_constraints
 

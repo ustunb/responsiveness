@@ -165,9 +165,7 @@ class ReachableSetDatabase:
         db[key].attrs[ReachableSetDatabase._STATS_ATTR_NAME] = np.array(list(stats.values()))
         return stats
 
-    def generate(
-        self, X: Union[np.ndarray, pd.DataFrame], overwrite: bool = False, **kwargs
-    ):
+    def generate(self, X: Union[np.ndarray, pd.DataFrame], overwrite: bool = False, **kwargs):
         """Generate reachable sets for each row in `X` and persist them.
 
         Args:
