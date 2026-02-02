@@ -5,8 +5,9 @@ todo
 import pandas as pd
 import pytest
 
-from reachml import *
-from reachml.constraints.ifthen import *
+from reachml.action_set import ActionSet
+from reachml.constraints.ifthen import Condition, IfThenConstraint
+from reachml.enumeration import ReachableSetEnumerator
 from reachml.utils import SUPPORTED_SOLVERS
 
 
@@ -36,6 +37,7 @@ def test_equals():
     #     diff_cons = OneHotEncoding(names = diff_names, **params)
     #     assert not (cons != diff_cons)
 
+
 @pytest.mark.parametrize("solver", SUPPORTED_SOLVERS)
 def test_add_ifthen_values_at_bounds(solver):
     X = pd.DataFrame(columns=["x0", "x1"], data=[[1.0, 0.0], [0.0, 1.0]])
@@ -55,6 +57,7 @@ def test_add_ifthen_values_at_bounds(solver):
     # self.assertEqual(a_values[0], 1.0)
     # self.assertEqual(a_values[1], 0.0)
 
+
 @pytest.mark.parametrize("solver", SUPPORTED_SOLVERS)
 def test_add_ifthen_unseen_then_value(solver):
     X = pd.DataFrame(columns=["x0", "x1"], data=[[0.0, 0.0], [1.0, 20.0], [0.0, 11.0]])
@@ -71,6 +74,7 @@ def test_add_ifthen_unseen_then_value(solver):
     enumerator.enumerate()
     # self.assertEqual(a_values[0], 1.0)
     # self.assertEqual(a_values[1], 2.0)
+
 
 @pytest.mark.parametrize("solver", SUPPORTED_SOLVERS)
 def test_add_ifthen_unseen_ifvalue(solver):
@@ -92,6 +96,7 @@ def test_add_ifthen_unseen_ifvalue(solver):
     # self.assertEqual(a_values[0], 1.0)
     # self.assertEqual(a_values[1], 1.0)
 
+
 @pytest.mark.parametrize("solver", SUPPORTED_SOLVERS)
 def test_add_ifthen_overlapping(solver):
     X = pd.DataFrame(
@@ -109,7 +114,8 @@ def test_add_ifthen_overlapping(solver):
 
     A.constraints.add(
         constraint=IfThenConstraint(
-            if_condition=Condition("x2", "G", 1), then_condition=Condition("x3", "E", 1)
+            if_condition=Condition("x2", "G", 1),
+            then_condition=Condition("x3", "E", 1),
         )
     )
 
@@ -122,8 +128,9 @@ def test_add_ifthen_overlapping(solver):
     # self.assertEqual(a_values[1], 1.0)
     # self.assertEqual(a_values[3], 1.0)
 
+
 @pytest.mark.parametrize("solver", SUPPORTED_SOLVERS)
-def test_returns_solution_for_if_then_constraint_for_multiple_constraints_increase_second_constraint(solver):
+def test_ifthen_multiple_constraints_increase_second(solver):
     X = pd.DataFrame(
         columns=["x0", "x1", "x2", "x3"],
         data=[[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 1.0], [0.0, 0.0, 1.0, 11.0]],
@@ -139,7 +146,8 @@ def test_returns_solution_for_if_then_constraint_for_multiple_constraints_increa
 
     A.constraints.add(
         constraint=IfThenConstraint(
-            if_condition=Condition("x2", "G", 1), then_condition=Condition("x3", "E", 1)
+            if_condition=Condition("x2", "G", 1),
+            then_condition=Condition("x3", "E", 1),
         )
     )
 
@@ -162,6 +170,7 @@ def test_returns_solution_for_if_then_constraint_for_multiple_constraints_increa
     # a_values = mip.solution.get_values(indices.names['a'])
     # self.assertEqual(a_values[2], 1.0)
     # self.assertEqual(a_values[3], 1.0)
+
 
 if __name__ == "__main__":
     pytest.main()

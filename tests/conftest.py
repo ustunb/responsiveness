@@ -1,5 +1,4 @@
-"""This file contains fixtures to create datasets and action sets for testing enumeration
-"""
+"""This file contains fixtures to create datasets and action sets for testing enumeration"""
 
 import numpy as np
 import pandas as pd
@@ -73,9 +72,7 @@ def dataset_actionset_2d(request):
 def generate_1d_test_case(dataset_actionset_name):
     assert (
         dataset_actionset_name
-        in BOOLEAN_TEST_CASES_1D
-        + INTEGER_TEST_CASES_1D
-        + UNSIGNED_INTEGER_TEST_CASES_1D
+        in BOOLEAN_TEST_CASES_1D + INTEGER_TEST_CASES_1D + UNSIGNED_INTEGER_TEST_CASES_1D
     )
 
     if "boolean" in dataset_actionset_name:
@@ -111,9 +108,7 @@ def generate_1d_test_case(dataset_actionset_name):
 
 
 def generate_2d_test_case(dataset_actionset_name):
-    X = pd.DataFrame(
-        columns=["has_phd", "has_children"], data=[[0, 0], [0, 1], [1, 0], [1, 1]]
-    )
+    X = pd.DataFrame(columns=["has_phd", "has_children"], data=[[0, 0], [0, 1], [1, 0], [1, 1]])
     A = ActionSet(X)
 
     if dataset_actionset_name == "boolean_2d":
@@ -153,9 +148,7 @@ def generate_2d_test_case(dataset_actionset_name):
 
 
 def generate_dataset_actionset_with_step_constraints(dataset_actionset_name):
-    X = pd.DataFrame(
-        columns=["x1", "x2", "x3"], data=[[0, 0, 0], [0, 1, 5], [1, 0, 10]]
-    )
+    X = pd.DataFrame(columns=["x1", "x2", "x3"], data=[[0, 0, 0], [0, 1, 5], [1, 0, 10]])
     A = ActionSet(X)
 
     if dataset_actionset_name == "step_mixed_3d_increasing":

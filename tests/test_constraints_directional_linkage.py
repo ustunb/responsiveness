@@ -8,6 +8,7 @@ constraints: [1, multiple_independent, multiple_overlapping]
 action_on_source_violates_target_type: [True, False]
 action_on_source_violates_target_bounds: [True, False]
 """
+
 import itertools
 
 import numpy as np
@@ -40,12 +41,7 @@ def create_linked_reachable_set(A, x, source, targets, scales):
         target_actions = np.zeros(shape=(len(a_t), d))
         target_actions[:, target_idx] = a_t
         joint_actions.append(
-            np.vstack(
-                [
-                    np.add(source_actions, target_action)
-                    for target_action in target_actions
-                ]
-            )
+            np.vstack([np.add(source_actions, target_action) for target_action in target_actions])
         )
     joint_actions = np.vstack(joint_actions)
     reachable_set = np.add(joint_actions, x)
@@ -58,9 +54,7 @@ def create_linked_reachable_set(A, x, source, targets, scales):
 
 
 def get_2d_test_case(t):
-    X = pd.DataFrame(
-        columns=["x0", "x1", "x2"], data=[[0, 0, -1], [1, 0, 0], [1, 1, 2], [1, 1, 3]]
-    )
+    X = pd.DataFrame(columns=["x0", "x1", "x2"], data=[[0, 0, -1], [1, 0, 0], [1, 1, 2], [1, 1, 3]])
     source = "x0"
     if t == "bool":
         targets = ["x1"]
@@ -98,11 +92,8 @@ def target_scale(request):
     return request.param
 
 
-def test_initialization(
-    target_type, target_scale, target_actionability, target_monotonicity
-):
+def test_initialization(target_type, target_scale, target_actionability, target_monotonicity):
     test_case = get_2d_test_case(t=target_type)
-    X = test_case["X"]
     A = test_case["A"]
     source = test_case["source"]
     targets = test_case["targets"]
@@ -151,15 +142,11 @@ def test_initialization(
     assert dropped is False
 
 
-test_cases_with_valid_type_int = list(
-    itertools.product(["int"], [1, 2], [True, False], [0, 1, -1])
-)
+test_cases_with_valid_type_int = list(itertools.product(["int"], [1, 2], [True, False], [0, 1, -1]))
 test_cases_with_valid_type_bool = list(
     itertools.product(["bool"], [1, -1], [True, False], [0, 1, -1])
 )
-test_cases_with_valid_type = (
-    test_cases_with_valid_type_int + test_cases_with_valid_type_bool
-)
+test_cases_with_valid_type = test_cases_with_valid_type_int + test_cases_with_valid_type_bool
 
 
 @pytest.mark.parametrize(
@@ -183,37 +170,35 @@ def test_enumeration_with_one_target(
 
     # setup expected sets
     expected_reachable_sets = {
-        tuple(x): create_linked_reachable_set(A, x, source, targets, scales)
-        for x in X.values
+        tuple(x): create_linked_reachable_set(A, x, source, targets, scales) for x in X.values
     }
 
     # add link constraint
-    link_constraint = DirectionalLinkage(
-        names=[source] + targets, scales=scales, keep_bounds=False
-    )
+    link_constraint = DirectionalLinkage(names=[source] + targets, scales=scales, keep_bounds=False)
     A.constraints.add(constraint=link_constraint)
 
-    for idx, x in enumerate(X.values):
+    for _idx, x in enumerate(X.values):
         expected_set = expected_reachable_sets.get(tuple(x))
         reachable_set = EnumeratedReachableSet(x=x, action_set=A, solver=solver)
         reachable_set.generate()
         assert reachable_set.complete
         try:
             assert np.isclose(sortrows(reachable_set.X), sortrows(expected_set)).all()
-        except AssertionError:
+        except AssertionError as err:
             print(A)
             print(f"\nx={str(x)}")
             print(f"\nexpected_set.X ({expected_set.shape[0]} points)\n{expected_set}")
-            print(
-                f"\nreachable_set.X ({reachable_set.X.shape[0]} points)\n{reachable_set.X}"
-            )
-            raise AssertionError()
-                
+            print(f"\nreachable_set.X ({reachable_set.X.shape[0]} points)\n{reachable_set.X}")
+            raise AssertionError() from err
+
+
 @pytest.mark.parametrize(
     "target_type,target_scale,target_actionability,target_monotonicity",
     test_cases_with_valid_type,
 )
-def test_enumeration_with_one_target_scip_and_cplex(target_type, target_scale, target_actionability, target_monotonicity):
+def test_enumeration_with_one_target_scip_and_cplex(
+    target_type, target_scale, target_actionability, target_monotonicity
+):
     try:
         assert "scip" in SUPPORTED_SOLVERS and "cplex" in SUPPORTED_SOLVERS
     except AssertionError:
@@ -233,45 +218,45 @@ def test_enumeration_with_one_target_scip_and_cplex(target_type, target_scale, t
 
     # setup expected sets
     expected_reachable_sets = {
-        tuple(x): create_linked_reachable_set(A, x, source, targets, scales)
-        for x in X.values
+        tuple(x): create_linked_reachable_set(A, x, source, targets, scales) for x in X.values
     }
 
     # add link constraint
-    link_constraint = DirectionalLinkage(
-        names=[source] + targets, scales=scales, keep_bounds=False
-    )
+    link_constraint = DirectionalLinkage(names=[source] + targets, scales=scales, keep_bounds=False)
     A.constraints.add(constraint=link_constraint)
 
-    for idx, x in enumerate(X.values):
+    for _idx, x in enumerate(X.values):
         expected_set = expected_reachable_sets.get(tuple(x))
         scip_reachable_set = EnumeratedReachableSet(x=x, action_set=A, solver="scip")
         scip_reachable_set.generate()
         assert scip_reachable_set.complete
         try:
             assert np.isclose(sortrows(scip_reachable_set.X), sortrows(expected_set)).all()
-        except AssertionError:
+        except AssertionError as err:
             print(A)
             print(f"\nx={str(x)}")
             print(f"\nexpected_set.X ({expected_set.shape[0]} points)\n{expected_set}")
             print(
-                f"\nreachable_set.X ({scip_reachable_set.X.shape[0]} points)\n{scip_reachable_set.X}"
+                f"\nreachable_set.X ({scip_reachable_set.X.shape[0]} points)\n"
+                f"{scip_reachable_set.X}"
             )
-            raise AssertionError()
+            raise AssertionError() from err
         cplex_reachable_set = EnumeratedReachableSet(x=x, action_set=A, solver="cplex")
         cplex_reachable_set.generate()
         assert cplex_reachable_set.complete
         try:
             assert np.isclose(sortrows(cplex_reachable_set.X), sortrows(expected_set)).all()
-        except AssertionError:
+        except AssertionError as err:
             print(A)
             print(f"\nx={str(x)}")
             print(f"\nexpected_set.X ({expected_set.shape[0]} points)\n{expected_set}")
             print(
-                f"\nreachable_set.X ({cplex_reachable_set.X.shape[0]} points)\n{cplex_reachable_set.X}"
+                f"\nreachable_set.X ({cplex_reachable_set.X.shape[0]} points)\n"
+                f"{cplex_reachable_set.X}"
             )
-            raise AssertionError()
+            raise AssertionError() from err
         assert np.isclose(sortrows(scip_reachable_set.X), sortrows(cplex_reachable_set.X)).all()
+
 
 def test_enumeration_with_multiple_targets():
     pytest.skip()

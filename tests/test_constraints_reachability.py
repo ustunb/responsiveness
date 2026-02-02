@@ -1,11 +1,12 @@
 """Test Strategy
 todo
 """
+
 import numpy as np
 import pandas as pd
 import pytest
 
-from reachml import *
+from reachml.action_set import ActionSet
 from reachml.constraints.reachability import ReachabilityConstraint
 from reachml.paths import tests_dir
 from reachml.reachable_set import EnumeratedReachableSet
@@ -46,7 +47,6 @@ def reachability(request, values):
 
 
 def test_initialization(test_case, values, reachability):
-    X = test_case["X"]
     A = test_case["A"]
     names = test_case["names"]
     params = {"names": names, "values": values, "reachability": reachability}
@@ -65,11 +65,18 @@ def test_initialization(test_case, values, reachability):
     dropped = A.constraints.drop(const_id)
     assert dropped
 
+
 @pytest.mark.parametrize("solver", SUPPORTED_SOLVERS)
 def test_contains(test_case, solver):
     A = test_case["A"]
     x = np.array([0.0, 0.0, 0.0, 0.0])
-    reachable_set = EnumeratedReachableSet(A, x, complete=True, values=np.vstack([x, np.eye(4)]), solver=solver)
+    reachable_set = EnumeratedReachableSet(
+        A,
+        x,
+        complete=True,
+        values=np.vstack([x, np.eye(4)]),
+        solver=solver,
+    )
 
     y = np.array([2, 2, 2, 2])
     assert y not in reachable_set
@@ -85,8 +92,6 @@ def test_contains(test_case, solver):
 
 
 def test_equals(test_case, values, reachability):
-    X = test_case["X"]
-    A = test_case["A"]
     params = {"values": values, "reachability": reachability}
     cons = ReachabilityConstraint(names=test_case["names"], **params)
     same_names = list(test_case["names"])
@@ -126,6 +131,7 @@ def test_vacuous_reachability_constraints(dataset_actionset_2d, solver):
         assert reachable_set == constrained_reachable_set
         A.constraints.drop(const_id)
 
+
 @pytest.mark.parametrize("solver", SUPPORTED_SOLVERS)
 def test_vacuous_reachability_constraints_with_overlap(solver):
     X = pd.DataFrame(
@@ -154,7 +160,7 @@ def test_vacuous_reachability_constraints_with_overlap(solver):
         ]
     )
 
-    for idx, x in enumerate(X.values):
+    for _idx, x in enumerate(X.values):
         # adding a reachability constraint should not change anything
         A = ActionSet(X)
         A.constraints.add(
@@ -166,9 +172,7 @@ def test_vacuous_reachability_constraints_with_overlap(solver):
             ReachabilityConstraint(
                 names=["x1", "x2"],
                 values=np.array([[0, 0], [0, 1], [1, 0], [1, 1]]),
-                reachability=np.array(
-                    [[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]]
-                ),
+                reachability=np.array([[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]]),
             )
         )
         feature_indices = A.get_feature_indices(["x0", "x1", "x2"])
@@ -188,11 +192,10 @@ def test_vacuous_reachability_constraints_with_overlap(solver):
         assert reachable_set.complete
         assert reachable_set == constrained_reachable_set
 
+
 @pytest.mark.parametrize("solver", SUPPORTED_SOLVERS)
 def test_reachability_constraints_for_fixed_point(dataset_actionset_2d, solver):
-    """Check to make sure that we can remove all other points from current point using reachability matrix
-    :return:
-    """
+    """Check that reachability can isolate a fixed point."""
     X = dataset_actionset_2d["X"]
     A = dataset_actionset_2d["A"]
     expected_reachable_set = dataset_actionset_2d["R"]
@@ -200,11 +203,11 @@ def test_reachability_constraints_for_fixed_point(dataset_actionset_2d, solver):
     print(f"A: {A}")
 
     n_values = X.values.shape[0]
-    for idx, x in enumerate(X.values):
+    for _idx, x in enumerate(X.values):
         # adding a reachability constraint should not change anything
         reachability_matrix = np.ones(shape=(n_values, n_values))
-        reachability_matrix[idx, :] = np.zeros(n_values)
-        reachability_matrix[idx, idx] = 1.0
+        reachability_matrix[_idx, :] = np.zeros(n_values)
+        reachability_matrix[_idx, _idx] = 1.0
         const_id = A.constraints.add(
             constraint=ReachabilityConstraint(
                 names=X.columns.tolist(),
@@ -227,6 +230,7 @@ def test_reachability_constraints_for_fixed_point(dataset_actionset_2d, solver):
         assert reachable_set.complete
         assert len(reachable_set) == n_expected
         assert R in reachable_set
+
 
 @pytest.mark.parametrize("solver", SUPPORTED_SOLVERS)
 def test_enumeration_with_overlapping(solver):
@@ -261,7 +265,7 @@ def test_enumeration_with_overlapping(solver):
         ]
     )
 
-    for idx, x in enumerate(X.values):
+    for _idx, x in enumerate(X.values):
         # adding a reachability constraint should not change anything
         A = ActionSet(X)
         A.constraints.add(
@@ -299,14 +303,13 @@ def test_enumeration_with_overlapping(solver):
         assert constrained_reachable_set.X in reachable_set
         assert reachable_set.X not in constrained_reachable_set
 
+
 @pytest.mark.parametrize("solver", SUPPORTED_SOLVERS)
 def test_enumeration_for_reachability_on_onehot_encoding(solver):
     """Check that we can use reachability constraints to force
     at most 1 of (x1, x2, x3) to be on
     """
-    X = pd.DataFrame(
-        columns=["x0", "x1", "x2"], data=[[0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]]
-    )
+    X = pd.DataFrame(columns=["x0", "x1", "x2"], data=[[0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]])
 
     values = np.array(
         [
@@ -321,7 +324,7 @@ def test_enumeration_for_reachability_on_onehot_encoding(solver):
         ]
     )
 
-    for idx, x in enumerate(X.values):
+    for _idx, x in enumerate(X.values):
         # adding a reachability constraint should not change anything
         A = ActionSet(X)
         A.constraints.add(
@@ -357,14 +360,13 @@ def test_enumeration_for_reachability_on_onehot_encoding(solver):
         assert values in reachable_set
         assert len(reachable_set) == values.shape[0]
 
+
 @pytest.mark.parametrize("solver", SUPPORTED_SOLVERS)
 def test_enumeration_for_reachability_on_ordinal_encoding_with_1step(solver):
     """Check that we can use reachability constraints to force
     at most 1 of (x1, x2, x3) to be on
     """
-    X = pd.DataFrame(
-        columns=["x0", "x1", "x2"], data=[[0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]]
-    )
+    X = pd.DataFrame(columns=["x0", "x1", "x2"], data=[[0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]])
 
     values = np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]])
 
@@ -392,7 +394,7 @@ def test_enumeration_for_reachability_on_ordinal_encoding_with_1step(solver):
         )
     )
 
-    for idx, x in enumerate(X.values):
+    for _idx, x in enumerate(X.values):
         reachable_set = EnumeratedReachableSet(x=x, action_set=A, solver=solver)
         reachable_set.generate()
         expected_set = np.array(expected_reachable_sets.get(tuple(x)))
@@ -402,6 +404,7 @@ def test_enumeration_for_reachability_on_ordinal_encoding_with_1step(solver):
         assert expected_set in reachable_set
         assert len(reachable_set) == len(expected_set)
 
+
 @pytest.mark.parametrize("solver", SUPPORTED_SOLVERS)
 def test_enumeration_for_reachability_on_thermometer_encoding(solver):
     """Check that we can use reachability constraints to enforce therometer encoding
@@ -410,9 +413,7 @@ def test_enumeration_for_reachability_on_thermometer_encoding(solver):
         x3 = 1[x ≥ v3]
     where v[1] ≤ v[2] ≤ v[3]
     """
-    X = pd.DataFrame(
-        columns=["x0", "x1", "x2"], data=[[0, 0, 0], [1, 0, 0], [1, 1, 0], [1, 1, 1]]
-    )
+    X = pd.DataFrame(columns=["x0", "x1", "x2"], data=[[0, 0, 0], [1, 0, 0], [1, 1, 0], [1, 1, 1]])
 
     values = np.array(
         [
@@ -427,7 +428,7 @@ def test_enumeration_for_reachability_on_thermometer_encoding(solver):
         ]
     )
 
-    for idx, x in enumerate(X.values):
+    for _idx, x in enumerate(X.values):
         # adding a reachability constraint should not change anything
         A = ActionSet(X)
         A.constraints.add(
@@ -486,7 +487,7 @@ def test_enumeration_for_reachability_on_thermometer_encoding_monotonic(solver):
         ]
     )
 
-    for idx, x in enumerate(X.values):
+    for _idx, x in enumerate(X.values):
         # adding a reachability constraint should not change anything
         A = ActionSet(X)
         A.step_direction = 1
@@ -512,7 +513,7 @@ def test_enumeration_for_reachability_on_thermometer_encoding_monotonic(solver):
         constrained_reachable_set = EnumeratedReachableSet(x=x, action_set=A, solver=solver)
         constrained_reachable_set.generate()
         assert constrained_reachable_set.complete
-        assert X.values[idx:,] in constrained_reachable_set
+        assert X.values[_idx:,] in constrained_reachable_set
 
         # dropping the constraint lead to infeasible actions
         A.constraints.clear()
@@ -553,9 +554,7 @@ def test_enumeration_in_1d(solver):
         constraint=ReachabilityConstraint(
             names=["percent_monthly_savings"],
             values=[[0.0], [0.5], [0.7], [1.0]],
-            reachability=np.array(
-                [[1, 1, 1, 1], [0, 1, 0, 1], [1, 1, 1, 1], [0, 0, 0, 1]]
-            ),
+            reachability=np.array([[1, 1, 1, 1], [0, 1, 0, 1], [1, 1, 1, 1], [0, 0, 0, 1]]),
         )
     )
 
@@ -564,9 +563,9 @@ def test_enumeration_in_1d(solver):
     reachable_set = EnumeratedReachableSet(x=x, action_set=A, solver=solver)
     reachable_set.generate()
     assert reachable_set.complete
-    R = reachable_set.X
     assert np.isin(X.values[:, 0], [0, 1]).all()
     assert np.isin(X.values[:, 1], [0.0, 0.5, 0.7, 1.0]).all()
+
 
 def test_contains_scip_and_cplex(test_case):
     try:
@@ -577,8 +576,12 @@ def test_contains_scip_and_cplex(test_case):
 
     A = test_case["A"]
     x = np.array([0.0, 0.0, 0.0, 0.0])
-    scip_reachable_set = EnumeratedReachableSet(A, x, complete=True, values=np.vstack([x, np.eye(4)]), solver="scip")
-    cplex_reachable_set = EnumeratedReachableSet(A, x, complete=True, values=np.vstack([x, np.eye(4)]), solver="cplex")
+    scip_reachable_set = EnumeratedReachableSet(
+        A, x, complete=True, values=np.vstack([x, np.eye(4)]), solver="scip"
+    )
+    cplex_reachable_set = EnumeratedReachableSet(
+        A, x, complete=True, values=np.vstack([x, np.eye(4)]), solver="cplex"
+    )
 
     y = np.array([2, 2, 2, 2])
     assert y not in scip_reachable_set
@@ -594,13 +597,14 @@ def test_contains_scip_and_cplex(test_case):
 
     assert scip_reachable_set == cplex_reachable_set
 
-def test_vacuous_reachability_constraints(dataset_actionset_2d):
+
+def test_vacuous_reachability_constraints_scip_cplex(dataset_actionset_2d):
     try:
         assert "scip" in SUPPORTED_SOLVERS and "cplex" in SUPPORTED_SOLVERS
     except AssertionError:
         print("SCIP and CPLEX are not both supported solvers.")
-        pytest.skip()    
-    
+        pytest.skip()
+
     X = dataset_actionset_2d["X"]
     A = dataset_actionset_2d["A"]
     expected_reachable_set = dataset_actionset_2d["R"]
@@ -643,13 +647,14 @@ def test_vacuous_reachability_constraints(dataset_actionset_2d):
         assert scip_constrained_reachable_set == cplex_constrained_reachable_set
         A.constraints.drop(const_id)
 
-def test_vacuous_reachability_constraints_with_overlap():
+
+def test_vacuous_reachability_constraints_with_overlap_scip_cplex():
     try:
         assert "scip" in SUPPORTED_SOLVERS and "cplex" in SUPPORTED_SOLVERS
     except AssertionError:
         print("SCIP and CPLEX are not both supported solvers.")
         pytest.skip()
-    
+
     X = pd.DataFrame(
         columns=["x0", "x1", "x2"],
         data=[
@@ -676,7 +681,7 @@ def test_vacuous_reachability_constraints_with_overlap():
         ]
     )
 
-    for idx, x in enumerate(X.values):
+    for _idx, x in enumerate(X.values):
         x = np.array(x, dtype=int).tolist()
         # adding a reachability constraint should not change anything
         A = ActionSet(X)
@@ -689,9 +694,7 @@ def test_vacuous_reachability_constraints_with_overlap():
             ReachabilityConstraint(
                 names=["x1", "x2"],
                 values=np.array([[0, 0], [0, 1], [1, 0], [1, 1]]),
-                reachability=np.array(
-                    [[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]]
-                ),
+                reachability=np.array([[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]]),
             )
         )
         feature_indices = A.get_feature_indices(["x0", "x1", "x2"])
@@ -723,6 +726,7 @@ def test_vacuous_reachability_constraints_with_overlap():
         assert cplex_constrained_reachable_set == cplex_reachable_set
         assert scip_reachable_set == cplex_reachable_set
 
+
 def test_reachability_constraints_for_fixed_point_scip_and_cplex(dataset_actionset_2d):
     try:
         assert "scip" in SUPPORTED_SOLVERS and "cplex" in SUPPORTED_SOLVERS
@@ -737,12 +741,12 @@ def test_reachability_constraints_for_fixed_point_scip_and_cplex(dataset_actions
     print(f"A: {A}")
 
     n_values = X.values.shape[0]
-    for idx, x in enumerate(X.values):
+    for _idx, x in enumerate(X.values):
         x = np.array(x, dtype=int).tolist()
         # adding a reachability constraint should not change anything
         reachability_matrix = np.ones(shape=(n_values, n_values))
-        reachability_matrix[idx, :] = np.zeros(n_values)
-        reachability_matrix[idx, idx] = 1.0
+        reachability_matrix[_idx, :] = np.zeros(n_values)
+        reachability_matrix[_idx, _idx] = 1.0
         const_id = A.constraints.add(
             constraint=ReachabilityConstraint(
                 names=X.columns.tolist(),
@@ -777,6 +781,7 @@ def test_reachability_constraints_for_fixed_point_scip_and_cplex(dataset_actions
         assert R in scip_reachable_set
         assert R in cplex_reachable_set
         assert scip_reachable_set == cplex_reachable_set
+
 
 def test_enumeration_with_overlap_scip_and_cplex():
     try:
@@ -818,7 +823,7 @@ def test_enumeration_with_overlap_scip_and_cplex():
         ]
     )
 
-    for idx, x in enumerate(X.values):
+    for _idx, x in enumerate(X.values):
         x = np.array(x, dtype=int).tolist()
         # adding a reachability constraint should not change anything
         A = ActionSet(X)
@@ -853,6 +858,7 @@ def test_enumeration_with_overlap_scip_and_cplex():
         assert len(cplex_constrained_reachable_set) == values.shape[0]
         assert scip_constrained_reachable_set == cplex_constrained_reachable_set
 
+
 def test_enumeration_for_reachability_on_onehot_encoding_scip_and_cplex():
     try:
         assert "scip" in SUPPORTED_SOLVERS and "cplex" in SUPPORTED_SOLVERS
@@ -865,9 +871,7 @@ def test_enumeration_for_reachability_on_onehot_encoding_scip_and_cplex():
     at most 1 of (x1, x2, x3) to be on
     """
 
-    X = pd.DataFrame(
-        columns=["x0", "x1", "x2"], data=[[0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]]
-    )
+    X = pd.DataFrame(columns=["x0", "x1", "x2"], data=[[0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]])
 
     values = np.array(
         [
@@ -882,7 +886,7 @@ def test_enumeration_for_reachability_on_onehot_encoding_scip_and_cplex():
         ]
     )
 
-    for idx, x in enumerate(X.values):
+    for _idx, x in enumerate(X.values):
         x = np.array(x, dtype=int).tolist()
         # adding a reachability constraint should not change anything
         A = ActionSet(X)
@@ -929,6 +933,7 @@ def test_enumeration_for_reachability_on_onehot_encoding_scip_and_cplex():
         assert len(cplex_reachable_set) == values.shape[0]
         assert scip_reachable_set == cplex_reachable_set
 
+
 def test_enumeration_for_reachability_on_ordinal_encoding_with_1step_scip_and_cplex():
     try:
         assert "scip" in SUPPORTED_SOLVERS and "cplex" in SUPPORTED_SOLVERS
@@ -941,9 +946,7 @@ def test_enumeration_for_reachability_on_ordinal_encoding_with_1step_scip_and_cp
     at most 1 of (x1, x2, x3) to be on
     """
 
-    X = pd.DataFrame(
-        columns=["x0", "x1", "x2"], data=[[0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]]
-    )
+    X = pd.DataFrame(columns=["x0", "x1", "x2"], data=[[0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]])
 
     values = np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]])
 
@@ -971,7 +974,7 @@ def test_enumeration_for_reachability_on_ordinal_encoding_with_1step_scip_and_cp
         )
     )
 
-    for idx, x in enumerate(X.values):
+    for _idx, x in enumerate(X.values):
         scip_reachable_set = EnumeratedReachableSet(x=x, action_set=A, solver="scip")
         cplex_reachable_set = EnumeratedReachableSet(x=x, action_set=A, solver="cplex")
         scip_reachable_set.generate()
@@ -989,6 +992,7 @@ def test_enumeration_for_reachability_on_ordinal_encoding_with_1step_scip_and_cp
         assert len(cplex_reachable_set) == len(expected_set)
         assert scip_reachable_set == cplex_reachable_set
 
+
 def test_enumeration_for_reachability_on_thermometer_encoding_scip_and_cplex():
     try:
         assert "scip" in SUPPORTED_SOLVERS and "cplex" in SUPPORTED_SOLVERS
@@ -1004,9 +1008,7 @@ def test_enumeration_for_reachability_on_thermometer_encoding_scip_and_cplex():
     where v[1] ≤ v[2] ≤ v[3]
     """
 
-    X = pd.DataFrame(
-        columns=["x0", "x1", "x2"], data=[[0, 0, 0], [1, 0, 0], [1, 1, 0], [1, 1, 1]]
-    )
+    X = pd.DataFrame(columns=["x0", "x1", "x2"], data=[[0, 0, 0], [1, 0, 0], [1, 1, 0], [1, 1, 1]])
 
     values = np.array(
         [
@@ -1021,7 +1023,7 @@ def test_enumeration_for_reachability_on_thermometer_encoding_scip_and_cplex():
         ]
     )
 
-    for idx, x in enumerate(X.values):
+    for _idx, x in enumerate(X.values):
         x = np.array(x, dtype=int).tolist()
         # adding a reachability constraint should not change anything
         A = ActionSet(X)
@@ -1067,6 +1069,7 @@ def test_enumeration_for_reachability_on_thermometer_encoding_scip_and_cplex():
         assert values in cplex_reachable_set
         assert scip_reachable_set == cplex_reachable_set
 
+
 def test_enumeration_for_reachability_on_thermometer_encoding_monotonic_scip_and_cplex():
     try:
         assert "scip" in SUPPORTED_SOLVERS and "cplex" in SUPPORTED_SOLVERS
@@ -1097,7 +1100,7 @@ def test_enumeration_for_reachability_on_thermometer_encoding_monotonic_scip_and
         ]
     )
 
-    for idx, x in enumerate(X.values):
+    for _idx, x in enumerate(X.values):
         # adding a reachability constraint should not change anything
         A = ActionSet(X)
         A.step_direction = 1
@@ -1125,8 +1128,8 @@ def test_enumeration_for_reachability_on_thermometer_encoding_monotonic_scip_and
         cplex_constrained_reachable_set.generate()
         assert scip_constrained_reachable_set.complete
         assert cplex_constrained_reachable_set.complete
-        assert X.values[idx:,] in scip_constrained_reachable_set
-        assert X.values[idx:,] in cplex_constrained_reachable_set
+        assert X.values[_idx:,] in scip_constrained_reachable_set
+        assert X.values[_idx:,] in cplex_constrained_reachable_set
 
         # dropping the constraint lead to infeasible actions
         A.constraints.clear()
@@ -1160,6 +1163,7 @@ def test_enumeration_for_reachability_on_thermometer_encoding_monotonic_scip_and
 
             assert [1, 0, 1] in cplex_reachable_set
             assert [1, 0, 1] not in cplex_constrained_reachable_set
+
 
 if __name__ == "__main__":
     pytest.main()

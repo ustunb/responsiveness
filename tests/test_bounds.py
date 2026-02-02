@@ -3,7 +3,7 @@ import pandas as pd
 import pytest
 
 from reachml.action_set import ActionSet
-from reachml.constraints import *
+from reachml.constraints import Condition, IfThenConstraint, OneHotEncoding
 from reachml.paths import tests_dir
 
 
@@ -12,9 +12,7 @@ def test_case(request):
     X = pd.read_csv(tests_dir / "credit.csv").drop(columns=["NoDefaultNextMonth"])
     A = ActionSet(X)
     A["Married"].actionable = False
-    A[
-        ["Age_lt_25", "Age_in_25_to_40", "Age_in_40_to_59", "Age_geq_60"]
-    ].actionable = False
+    A[["Age_lt_25", "Age_in_25_to_40", "Age_in_40_to_59", "Age_geq_60"]].actionable = False
     A["EducationLevel"].step_direction = 1
     A["EducationLevel"].lb = 0
     A["EducationLevel"].ub = 3
@@ -29,9 +27,7 @@ def test_action_bounds(test_case):
     A = test_case["A"]
     x = X.iloc[9].values  # = [0, 1, 0, 1, 0, 0, 1, 420, 400, 1, 4, 0, 0, 0, 0, 0, 0]
     expected_lb = np.array([0, -1, 0, 0, 0, 0, 0, -420, -400, -1, -4, 0, 0, 0, 0, 0, 0])
-    expected_ub = np.array(
-        [0, 0, 0, 0, 0, 0, 2, 50390, 51030, 5, 2, 6, 29450, 26670, 3, 100, 1]
-    )
+    expected_ub = np.array([0, 0, 0, 0, 0, 0, 2, 50390, 51030, 5, 2, 6, 29450, 26670, 3, 100, 1])
     assert np.array_equal(expected_lb, A.get_bounds(x, bound_type="lb"))
     assert np.array_equal(expected_ub, A.get_bounds(x, bound_type="ub"))
 
@@ -69,9 +65,7 @@ def test_action_bounds_monotonic(test_case):
 
     A = ActionSet(X)
     A["Married"].actionable = False
-    A[
-        ["Age_lt_25", "Age_in_25_to_40", "Age_in_40_to_59", "Age_geq_60"]
-    ].actionable = False
+    A[["Age_lt_25", "Age_in_25_to_40", "Age_in_40_to_59", "Age_geq_60"]].actionable = False
     A["EducationLevel"].ub = 3
     A["EducationLevel"].lb = 0
 
@@ -110,13 +104,11 @@ def test_action_bounds_partition_masking(test_case):
     A["TotalMonthsOverdue"].lb = 0
     A["TotalMonthsOverdue"].ub = 100
 
-    const_id = A.constraints.add(
-        OneHotEncoding(
-            names=["Age_lt_25", "Age_in_25_to_40", "Age_in_40_to_59", "Age_geq_60"]
-        )
+    A.constraints.add(
+        OneHotEncoding(names=["Age_lt_25", "Age_in_25_to_40", "Age_in_40_to_59", "Age_geq_60"])
     )
 
-    const_id = A.constraints.add(
+    A.constraints.add(
         IfThenConstraint(
             if_condition=Condition("MaxBillAmountOverLast6Months", "G", 100),
             then_condition=Condition("MaxPaymentAmountOverLast6Months", "E", 100),

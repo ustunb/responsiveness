@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from reachml.constraints import *
+from reachml.constraints.reachability import ReachabilityConstraint
 from reachml.reachable_set import EnumeratedReachableSet
 from reachml.utils import SUPPORTED_SOLVERS
 
@@ -9,6 +9,7 @@ from reachml.utils import SUPPORTED_SOLVERS
 @pytest.fixture(params=[True, False])
 def vacuous_reachability_constraint(request):
     return request
+
 
 @pytest.mark.parametrize("solver", SUPPORTED_SOLVERS)
 def test_enumeration(discrete_test_case, vacuous_reachability_constraint, solver):
@@ -23,7 +24,7 @@ def test_enumeration(discrete_test_case, vacuous_reachability_constraint, solver
         reachable_set = EnumeratedReachableSet(action_set=A, x=x, solver=solver)
         R = expected_reachable_set.get(tuple(x))
         n_expected = len(R)
-        for k in range(0, n_expected):
+        for _k in range(0, n_expected):
             reachable_set.generate(max_points=1)
             assert reachable_set.complete is False or len(reachable_set) == n_expected
 
@@ -70,7 +71,7 @@ def test_enumeration_scip_and_cplex(discrete_test_case, vacuous_reachability_con
         scip_reachable_set = EnumeratedReachableSet(action_set=A, x=x, solver="scip")
         R = expected_reachable_set.get(tuple(x))
         n_expected = len(R)
-        for k in range(0, n_expected):
+        for _k in range(0, n_expected):
             scip_reachable_set.generate(max_points=1)
             assert scip_reachable_set.complete is False or len(scip_reachable_set) == n_expected
 
@@ -93,7 +94,7 @@ def test_enumeration_scip_and_cplex(discrete_test_case, vacuous_reachability_con
         cplex_reachable_set = EnumeratedReachableSet(action_set=A, x=x, solver="cplex")
         R = expected_reachable_set.get(tuple(x))
         n_expected = len(R)
-        for k in range(0, n_expected):
+        for _k in range(0, n_expected):
             cplex_reachable_set.generate(max_points=1)
             assert cplex_reachable_set.complete is False or len(cplex_reachable_set) == n_expected
 
@@ -102,7 +103,7 @@ def test_enumeration_scip_and_cplex(discrete_test_case, vacuous_reachability_con
         assert len(cplex_reachable_set) == n_expected
         for xr in R:
             assert np.all(cplex_reachable_set.X == xr, axis=1).any()
-        
+
     for xr in scip_reachable_set.X:
         assert np.all(cplex_reachable_set.X == xr, axis=1).any()
 
