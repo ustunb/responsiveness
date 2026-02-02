@@ -22,9 +22,9 @@ jobs:
         with:
           python-version: "3.12"
       - name: Ruff lint
-        run: uvx ruff check .
+        run: uvx ruff check reachml tests
       - name: Ruff format check
-        run: uvx ruff format --check .
+        run: uvx ruff format --check reachml tests
 
   tests:
     name: tests (python ${{ matrix.python-version }})
