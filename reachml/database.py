@@ -329,9 +329,7 @@ class ReachableSetDatabase:
                 if not overwrite and key in db:
                     continue
                 out.append(
-                    self._store_reachable_set_data(
-                        db, key, x, X_matrix, metadata_values, stats
-                    )
+                    self._store_reachable_set_data(db, key, x, X_matrix, metadata_values, stats)
                 )
 
         out = pd.DataFrame(out) if out else pd.DataFrame(columns=self._STATS_KEYS)
