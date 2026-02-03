@@ -58,7 +58,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Sync project environment
-        run: uv sync --frozen --extra cplex
+        run: uv sync --frozen --group dev --extra cplex
       - name: Run tests
         run: uv run pytest
 
@@ -79,7 +79,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Sync project environment
-        run: uv sync --frozen --extra cplex
+        run: uv sync --frozen --group dev --extra cplex
       - name: Run tests
         run: uv run pytest
 
