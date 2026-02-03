@@ -1,11 +1,10 @@
-import sys
-import os
-import psutil
 import argparse
-
-from src.paths import *
-from src import fileutils
+import os
 from pathlib import Path
+
+import psutil
+from src import fileutils
+from src.paths import *
 
 settings = {
     "data_name": "german",
@@ -37,8 +36,7 @@ print(f"constraints: {actionset_constraint_file}")
 
 
 def sanitize_names(name, wrapper_function="textfn"):
-    """
-    :param name: string for feature name
+    """:param name: string for feature name
     :param latex function name to apply to features:
     :return:
     """
@@ -55,8 +53,7 @@ def sanitize_names(name, wrapper_function="textfn"):
 
 
 def to_latex(action_set, reorder=False, header_wrapper_function="textheader"):
-    """
-    :param action_set: ActionSet object
+    """:param action_set: ActionSet object
     :return: formatted latex table summarizing the action set for publications
     """
     df = action_set.df

@@ -100,6 +100,7 @@ class OneHotEncoding(ActionabilityConstraint):
     def add_to_cpx(self, cpx, indices, x):
         """Add one-hot cardinality constraint to CPLEX model."""
         from cplex import Cplex, SparsePair
+
         assert isinstance(cpx, Cplex)
         cons = cpx.linear_constraints
         x_values = self.adapt(x)
@@ -118,6 +119,7 @@ class OneHotEncoding(ActionabilityConstraint):
     def add_to_scip(self, scip, indices, x):
         """Add one-hot cardinality constraint to a SCIP model."""
         from pyscipopt import Model, quicksum
+
         assert isinstance(scip, Model)
 
         x_values = self.adapt(x)

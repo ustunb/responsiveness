@@ -1,11 +1,10 @@
-"""
-This file defines paths for key directories and files. Contents include:
+"""This file defines paths for key directories and files. Contents include:
 1. Directory Names: Path objects that specify the directories where we store code, data, results, etc.
 2. File Name Generators: functions used to programatically name processed datasets, results, graphs etc.
 """
 
-from pathlib import Path
 import os
+from pathlib import Path
 
 # Directories
 
@@ -42,8 +41,7 @@ results_dir.mkdir(exist_ok=True)
 
 # Naming Functions
 def get_data_csv_file(data_name, **kwargs):
-    """
-    :param data_name: string containing name of the dataset
+    """:param data_name: string containing name of the dataset
     :param kwargs: used to catch other args when unpacking dictionaries
                    this allows us to call this function as get_results_file_name(**settings)
     :return:
@@ -54,8 +52,7 @@ def get_data_csv_file(data_name, **kwargs):
 
 
 def get_data_file(data_name, action_set_name, **kwargs):
-    """
-    :param data_name: string containing name of the dataset
+    """:param data_name: string containing name of the dataset
     :param kwargs: used to catch other args when unpacking dictionaries
                    this allows us to call this function as get_results_file_name(**settings)
     :return:
@@ -66,8 +63,7 @@ def get_data_file(data_name, action_set_name, **kwargs):
 
 
 def get_action_set_file(data_name, action_set_name, **kwargs):
-    """
-    :param data_name: string containing name of the dataset
+    """:param data_name: string containing name of the dataset
     :return: file name
     """
     assert isinstance(data_name, str) and len(data_name) > 0
@@ -114,8 +110,7 @@ def get_stats_file(data_name, action_set_name, method_name, model_type, **kwargs
 
 
 def get_reachable_db_file(data_name, action_set_name, **kwargs):
-    """
-    returns file name of a reachable set dataset.
+    """Returns file name of a reachable set dataset.
 
     :param data_name: string containing name of the dataset
     :param action_set_name: string containing name of the action set

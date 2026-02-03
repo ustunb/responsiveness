@@ -1,3 +1,6 @@
+from collections import Counter
+from operator import itemgetter
+
 import numpy as np
 import pandas as pd
 import prettytable
@@ -5,8 +8,6 @@ import rich
 from prettytable.colortable import ColorTable
 from src.data import BinaryClassificationDataset
 from src.training import train_logreg_vanilla
-from operator import itemgetter
-from collections import Counter
 
 
 def check_processing_loss(
@@ -19,8 +20,7 @@ def check_processing_loss(
     seed=2338,
     **kwargs,
 ):
-    """
-    checks loss in data processing between two binary classification datasets
+    """Checks loss in data processing between two binary classification datasets
     :param data:
     :param data_raw:
     :param model_type:
@@ -68,7 +68,7 @@ def check_responsiveness(data, database):
 
     results = {}
     predictions = clf.predict(rescale(data.X))
-    for idx, (x, y, fx) in enumerate(zip(data.X, data.y, predictions)):
+    for idx, (x, y, fx) in enumerate(zip(data.X, data.y, predictions, strict=False)):
         R = database[x]
         flipped_idx = np.flatnonzero(clf.predict(rescale(R.X)) > 0)
         n_feasible_actions = len(flipped_idx)
@@ -120,15 +120,14 @@ def highlight(strings, flags=None, invert=False, code=None):
     if code is None:
         code = "\033[1;38;107m"  # RED
 
-    out = [code + s + "\033[0m" if f else s for f, s in zip(flags, strings)]
+    out = [code + s + "\033[0m" if f else s for f, s in zip(flags, strings, strict=False)]
     return out
 
 
 def tabulate_actions(action_set):
     # todo: update table to show partitions
     # todo: add also print constraints
-    """
-    prints a table with information about each element in the action set
+    """Prints a table with information about each element in the action set
     :param action_set: ActionSet object
     :return:
     """

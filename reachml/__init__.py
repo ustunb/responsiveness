@@ -14,6 +14,7 @@ __all__ = [
     "ReachableSet",
     "ReachableSetDatabase",
     "ResponsivenessAuditor",
+    "ResponsivenessScorer",
     "constraints",
     "datasets",
 ]

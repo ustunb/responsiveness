@@ -1,14 +1,14 @@
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import RandomizedSearchCV
-from xgboost import XGBClassifier
-from imblearn.over_sampling import RandomOverSampler
-from imblearn.under_sampling import RandomUnderSampler
-import numpy as np
 import warnings
 
+import numpy as np
+from imblearn.over_sampling import RandomOverSampler
+from imblearn.under_sampling import RandomUnderSampler
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import RandomizedSearchCV
+from sklearn.preprocessing import StandardScaler
 from src import metrics
+from xgboost import XGBClassifier
 
 warnings.filterwarnings("ignore")
 
@@ -16,8 +16,7 @@ warnings.filterwarnings("ignore")
 def sample_processing(
     data, label_encoding=None, rescale=False, rebalance=None, seed=None
 ):
-    """
-    process training and testing data for training -- use for rescaling etc.
+    """Process training and testing data for training -- use for rescaling etc.
     :param data: BinaryClassificationDataset
     :param remap_labels = {-1: 0
     :param rebalancing_train: None or 'over' (oversampling, 'under' (undersampling)

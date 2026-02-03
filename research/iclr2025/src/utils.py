@@ -1,5 +1,4 @@
-"""
-TODO: describe what this file contains
+"""TODO: describe what this file contains
 """
 
 from collections import Counter
@@ -13,6 +12,7 @@ import prettytable
 import rich
 from prettytable.colortable import ColorTable
 from sklearn.preprocessing import StandardScaler
+
 from src.ext.training import train_model
 
 
@@ -25,8 +25,7 @@ def has_feature_vector_float(X, x, atol):
 
 
 def expand_values(value, m):
-    """
-    expands value m times
+    """Expands value m times
     :param value:
     :param m:
     :return:
@@ -63,8 +62,7 @@ def expand_values(value, m):
 
 
 def check_feature_matrix(X, d=1):
-    """
-    :param X: feature matrix
+    """:param X: feature matrix
     :param d:
     :return:
     """
@@ -77,8 +75,7 @@ def check_feature_matrix(X, d=1):
 
 
 def check_variable_names(names):
-    """
-    checks variable names
+    """Checks variable names
     :param names: list of names for each feature in a dataset.
     :return:
     """
@@ -93,8 +90,7 @@ def check_variable_names(names):
 
 
 def check_partition(action_set, partition):
-    """
-    :param action_set:
+    """:param action_set:
     :param partition:
     :return:
     """
@@ -123,8 +119,7 @@ def implies(a, b):
 
 
 def parse_attribute_name(dummy_names, default_name=""):
-    """
-    parse attribute name from
+    """Parse attribute name from
     :param dummy_names: list of names of a dummy variable
     :param default_name: default name to return if nothing is parsed
     :return: string containing the attribute name or default name if no common prefix
@@ -145,8 +140,7 @@ def check_processing_loss(
     seed=2338,
     **kwargs,
 ):
-    """
-    checks loss in data processing between two binary classification datasets
+    """Checks loss in data processing between two binary classification datasets
     :param data:
     :param data_raw:
     :param model_type:
@@ -206,15 +200,14 @@ def highlight(strings, flags=None, invert=False, code=None):
     if code is None:
         code = "\033[1;38;107m"  # RED
 
-    out = [code + s + "\033[0m" if f else s for f, s in zip(flags, strings)]
+    out = [code + s + "\033[0m" if f else s for f, s in zip(flags, strings, strict=False)]
     return out
 
 
 def tabulate_actions(action_set):
     # todo: update table to show partitions
     # todo: add also print constraints
-    """
-    prints a table with information about each element in the action set
+    """Prints a table with information about each element in the action set
     :param action_set: ActionSet object
     :return:
     """
@@ -305,8 +298,7 @@ def visualize_diff(x, x_prime):
 
 ###
 def undo_coefficient_scaling(clf=None, coefficients=None, intercept=0.0, scaler=None):
-    """
-    given coefficients and data for scaled data, returns coefficients and intercept for unnormalized data
+    """Given coefficients and data for scaled data, returns coefficients and intercept for unnormalized data
 
     w = w_scaled / sigma
     b = b_scaled - (w_scaled / sigma).dot(mu) = b_scaled - w.dot(mu)

@@ -1,15 +1,17 @@
-"""
-Test Strategy
+"""Test Strategy
 todo
 """
-import pytest
-import pandas as pd
-import numpy as np
+
 from itertools import product
-from reachml.paths import tests_dir
-from reachml import *
-from reachml.reachable_set import EnumeratedReachableSet
+
+import numpy as np
+import pandas as pd
+import pytest
+
+from reachml.action_set import ActionSet
 from reachml.constraints.onehot import OneHotEncoding
+from reachml.paths import tests_dir
+from reachml.reachable_set import EnumeratedReachableSet
 from reachml.utils import SUPPORTED_SOLVERS
 
 
@@ -77,6 +79,7 @@ def test_equals(test_case, limit_value, limit_type):
         diff_cons = OneHotEncoding(names=diff_names, **params)
         assert not (cons != diff_cons)
 
+
 @pytest.mark.parametrize("solver", SUPPORTED_SOLVERS)
 def test_enumeration_with_onehot_constraints(limit_type, limit_value, solver):
     X = pd.DataFrame(
@@ -94,16 +97,16 @@ def test_enumeration_with_onehot_constraints(limit_type, limit_value, solver):
     )
 
     A = ActionSet(X)
-    cons = OneHotEncoding(
-        names=X.columns.tolist(), limit=limit_value, limit_type=limit_type
-    )
+    cons = OneHotEncoding(names=X.columns.tolist(), limit=limit_value, limit_type=limit_type)
     A.constraints.add(constraint=cons)
-    for idx, x in enumerate(X.values):
+    for _idx, x in enumerate(X.values):
         if cons.check_feasibility(x):
             reachable_set = EnumeratedReachableSet(x=x, action_set=A, solver=solver)
             reachable_set.generate()
             assert reachable_set.complete, "reachable set is not complete"
-            assert all([cons.check_feasibility(x) for x in reachable_set.X]), "violates constraint feasibility"
+            assert all(cons.check_feasibility(item) for item in reachable_set.X), (
+                "violates constraint feasibility"
+            )
         else:
             with pytest.raises(AssertionError):
                 EnumeratedReachableSet(x=x, action_set=A, solver=solver).generate()
@@ -113,8 +116,7 @@ def test_enumeration_with_onehot_constraints(limit_type, limit_value, solver):
 
 @pytest.mark.parametrize("solver", SUPPORTED_SOLVERS)
 def test_enumeration_with_onehot_constraints_overlapping(solver):
-    """
-    assume that x1, x2 = (0, 1) is infeasible
+    """Assume that x1, x2 = (0, 1) is infeasible
     this is similar to x2 = 1 -> x1 = 1 so
     :return:
     """
@@ -141,36 +143,39 @@ def test_enumeration_with_onehot_constraints_overlapping(solver):
     SB = A.get_feature_indices(["x1", "x2", "x3"])
     feature_indices = list(set(SA + SB))
     assert feature_indices in A.partition
-    for idx, x in enumerate(X.values):
+    for _idx, x in enumerate(X.values):
         reachable_set = EnumeratedReachableSet(x=x, action_set=A, solver=solver)
         reachable_set.generate()
-        assert np.equal(np.sum(reachable_set.X[:, SA], axis=1), 1.0).all(), "Doesn't pass EQUAL check"
-        assert np.less_equal(
-            np.sum(reachable_set.X[:, SB], axis=1), 2.0
-        ).all(), "Doesn't pass LEQ check"
+        assert np.equal(np.sum(reachable_set.X[:, SA], axis=1), 1.0).all(), (
+            "Doesn't pass EQUAL check"
+        )
+        assert np.less_equal(np.sum(reachable_set.X[:, SB], axis=1), 2.0).all(), (
+            "Doesn't pass LEQ check"
+        )
 
 
-@pytest.mark.parametrize("limit_value,limit_type,solver", list(product([1], ["equal", "max"], SUPPORTED_SOLVERS)))
+@pytest.mark.parametrize(
+    "limit_value,limit_type,solver",
+    list(product([1], ["equal", "max"], SUPPORTED_SOLVERS)),
+)
 def test_enumeration_with_onehot_constraints_immutable(limit_type, limit_value, solver):
     immutable_idx = [0]
     X = pd.DataFrame(columns=["x0", "x1", "x2"], data=[[0, 0, 1], [0, 1, 0], [1, 0, 0]])
 
     A = ActionSet(X)
-    constraint = OneHotEncoding(
-        names=["x0", "x1", "x2"], limit=limit_value, limit_type=limit_type
-    )
+    constraint = OneHotEncoding(names=["x0", "x1", "x2"], limit=limit_value, limit_type=limit_type)
     A.constraints.add(constraint=constraint)
     A[constraint.names].actionable = True
     A[immutable_idx].actionable = False
     is_feasible = lambda z: constraint.check_feasibility(z) and np.all(
         z[immutable_idx] == x[immutable_idx]
     )
-    for idx, x in enumerate(X.values):
+    for _idx, x in enumerate(X.values):
         if is_feasible(x):
             reachable_set = EnumeratedReachableSet(x=x, action_set=A, solver=solver)
             reachable_set.generate()
             assert reachable_set.complete
-            assert all([is_feasible(x) for x in reachable_set.X])
+            assert all(is_feasible(item) for item in reachable_set.X)
         else:
             with pytest.raises(AssertionError):
                 EnumeratedReachableSet(x=x, action_set=A, solver=solver)
@@ -179,13 +184,12 @@ def test_enumeration_with_onehot_constraints_immutable(limit_type, limit_value, 
 @pytest.mark.parametrize("solver", SUPPORTED_SOLVERS)
 def test_enumeration_with_onehot_constraints_monotonic(solver):
     X = pd.DataFrame(
-        columns=["x0", "x1", "x2"], data=[[0, 0, 0], [0, 0, 1], [0, 1, 0], [1, 0, 0]]
+        columns=["x0", "x1", "x2"],
+        data=[[0, 0, 0], [0, 0, 1], [0, 1, 0], [1, 0, 0]],
     )
 
     A = ActionSet(X)
-    A.constraints.add(
-        OneHotEncoding(names=X.columns.tolist(), limit=1, limit_type="max")
-    )
+    A.constraints.add(OneHotEncoding(names=X.columns.tolist(), limit=1, limit_type="max"))
     increasing = [0]
     decreasing = [1]
     A[increasing].step_direction = 1
@@ -197,7 +201,7 @@ def test_enumeration_with_onehot_constraints_monotonic(solver):
         (1, 0, 0): [[1, 0, 0]],
     }
 
-    for idx, x in enumerate(X.values):
+    for _idx, x in enumerate(X.values):
         reachable_set = EnumeratedReachableSet(x=x, action_set=A, solver=solver)
         reachable_set.generate()
         assert reachable_set.complete
@@ -210,7 +214,9 @@ def test_enumeration_with_onehot_constraints_monotonic(solver):
             assert np.all(reachable_set.X[:, decreasing] == 0)
 
 
-def test_enumeration_with_onehot_constraints_dropping_scip_and_cplex(test_case, limit_value, limit_type):
+def test_enumeration_with_onehot_constraints_dropping_scip_and_cplex(
+    test_case, limit_value, limit_type
+):
     try:
         assert "scip" in SUPPORTED_SOLVERS and "cplex" in SUPPORTED_SOLVERS
     except AssertionError:
@@ -232,22 +238,28 @@ def test_enumeration_with_onehot_constraints_dropping_scip_and_cplex(test_case, 
     )
 
     A = ActionSet(X)
-    cons = OneHotEncoding(
-        names=X.columns.tolist(), limit=limit_value, limit_type=limit_type
-    )
+    cons = OneHotEncoding(names=X.columns.tolist(), limit=limit_value, limit_type=limit_type)
     A.constraints.add(constraint=cons)
-    for idx, x in enumerate(X.values):
+    for _idx, x in enumerate(X.values):
         if cons.check_feasibility(x):
             scip_reachable_set = EnumeratedReachableSet(x=x, action_set=A, solver="scip")
             scip_reachable_set.generate()
             assert scip_reachable_set.complete, "reachable set is not complete"
-            assert all([cons.check_feasibility(x) for x in scip_reachable_set.X]), "violates constraint feasibility"
+            assert all(cons.check_feasibility(item) for item in scip_reachable_set.X), (
+                "violates constraint feasibility"
+            )
             cplex_reachable_set = EnumeratedReachableSet(x=x, action_set=A, solver="cplex")
             cplex_reachable_set.generate()
             assert cplex_reachable_set.complete, "reachable set is not complete"
-            assert all([cons.check_feasibility(x) for x in cplex_reachable_set.X]), "violates constraint feasibility"
-            assert len(scip_reachable_set) == len(cplex_reachable_set), "reachable sets differ between solvers"
-            assert all([x in cplex_reachable_set for x in scip_reachable_set.X]), "reachable sets differ between solvers"
+            assert all(cons.check_feasibility(item) for item in cplex_reachable_set.X), (
+                "violates constraint feasibility"
+            )
+            assert len(scip_reachable_set) == len(cplex_reachable_set), (
+                "reachable sets differ between solvers"
+            )
+            assert all(item in cplex_reachable_set for item in scip_reachable_set.X), (
+                "reachable sets differ between solvers"
+            )
 
         else:
             with pytest.raises(AssertionError):
@@ -255,6 +267,7 @@ def test_enumeration_with_onehot_constraints_dropping_scip_and_cplex(test_case, 
                 EnumeratedReachableSet(x=x, action_set=A, solver="cplex").generate()
             with pytest.raises(AssertionError):
                 cons.adapt(x)
+
 
 #### to be implemented ####
 # def test_check_compatability(dataset_actionset, limit_value, limit_type):

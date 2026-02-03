@@ -1,10 +1,9 @@
+import argparse
 import itertools
 import os
-import sys
-import psutil
 
 import pandas as pd
-import argparse
+import psutil
 
 settings = {
     "data_name": "german",
@@ -25,8 +24,8 @@ if process_type not in ("pycharm"):
     args, _ = parser.parse_known_args()
     settings.update(vars(args))
 
-from src.paths import *
 from src import fileutils
+from src.paths import *
 
 audit_results = fileutils.load(get_audit_results_file(**settings))
 microdata = pd.DataFrame.from_dict(audit_results, orient="index")

@@ -15,8 +15,7 @@ DEFAULT_PATH = Path(sys.executable)
 DEFAULT_PKG_LIST_PY = ("pandas", "numpy", "scipy", "dill", "pickle5", "matplotlib", "seaborn", "ipython", "prettytable", "scikit-learn")
 
 def setup_R():
-    """
-    :param verbose:
+    """:param verbose:
     :return:
     """
     f = REPO_DIR / 'setup.R'
@@ -26,8 +25,7 @@ def setup_R():
 
 
 def setup_reticulate(envname = DEFAULT_ENVNAME, python_path = DEFAULT_PATH, pkg_list = DEFAULT_PKG_LIST_PY):
-    """
-    :param envname:
+    """:param envname:
     setting envname = None will use R defaults
 
     :param python_path:
@@ -38,7 +36,6 @@ def setup_reticulate(envname = DEFAULT_ENVNAME, python_path = DEFAULT_PATH, pkg_
 
     :return:
     """
-
     assert Path(python_path).exists()
     assert isinstance(pkg_list, (list, set, tuple))
     assert all([isinstance(pkg, str) for pkg in pkg_list])

@@ -112,27 +112,33 @@ class ReachableSetEnumerator:
             max_points: Max solutions to request from each enumerator.
             time_limit: Solver time limit in seconds.
             node_limit: Solver node limit (int).
+            **kwargs: Unused, kept for interface compatibility.
         """
         for e in self._enumerators.values():
             e.enumerate(max_points=max_points, time_limit=time_limit, node_limit=node_limit)
 
     def convert_to_full_action(self, actions, part):
+        """Expand partition actions into full-length action vectors."""
         full_action = np.zeros((len(actions), len(self.x)))
         full_action[:, part] = actions
 
         return full_action
 
     def __repr__(self):
+        """Return a debug representation of the enumerator."""
         return f"ReachableSetEnumerator<x = {str(self.x)}>"
 
 
 class ReachableGrid:
+    """Grid enumerator for a single discrete actionable feature."""
+
     def __init__(self, action_set, x, **kwargs):
-        """Grid enumerator for a single discrete actionable feature.
+        """Initialize a single-feature grid enumerator.
 
         Args:
             action_set: `ActionSet` with length 1.
             x: Feature value.
+            **kwargs: Unused, kept for interface compatibility.
         """
         assert len(action_set) == 1 and action_set.actionable[0]
         self.feasible_actions = action_set[0].reachable_grid(x, return_actions=True).reshape(-1, 1)
@@ -145,6 +151,8 @@ class ReachableGrid:
 
 
 class ReachableSetEnumerationMIP:
+    """MIP-based enumerator for multi-feature actionable partitions."""
+
     SETTINGS = {
         "eps_min": 0.5,
         # todo: set MIP parameters here
@@ -228,8 +236,8 @@ class ReachableSetEnumerationMIP:
             from .mip.backends.scip_utils import set_mip_node_limit, set_mip_time_limit
         else:
             raise NotImplementedError(
-                    f"setting time/node limit not implemented for solver {self.mip_obj.solver}"
-                )
+                f"setting time/node limit not implemented for solver {self.mip_obj.solver}"
+            )
 
         if time_limit is not None:
             self.mip = set_mip_time_limit(self.mip, time_limit)
@@ -243,7 +251,8 @@ class ReachableSetEnumerationMIP:
                 self._complete = True
                 break
 
-            self.mip_obj.check_solution()  # whatever unpacks `current_solution` into `self._feasible_actions`
+            # Unpack `current_solution` into `self._feasible_actions`.
+            self.mip_obj.check_solution()
             a = self.mip_obj.current_solution
             self._feasible_actions.append(a)
             self.mip_obj.remove_actions(actions=[a])

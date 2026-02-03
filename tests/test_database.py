@@ -1,7 +1,9 @@
 import pathlib
+
 import numpy as np
-import pytest
 import pandas as pd
+import pytest
+
 from reachml.action_set import ActionSet
 from reachml.database import ReachableSetDatabase
 from reachml.paths import tests_dir

@@ -1,10 +1,11 @@
 from pathlib import Path
+
 import dill
 import pandas as pd
 
+
 def save(obj, path, overwrite=False, check_save=False, mkdir = True):
-    """
-    saves data as a pickle file on disk
+    """Saves data as a pickle file on disk
     :param obj: object to save to disk
     :param path: path to create
     :return: saved path
@@ -29,8 +30,7 @@ def save(obj, path, overwrite=False, check_save=False, mkdir = True):
     return f
 
 def load(path):
-    """
-    loads pickle file from disk
+    """Loads pickle file from disk
     :param path: path of the file
     :return: contents of file under 'data'
     """

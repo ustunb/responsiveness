@@ -1,6 +1,6 @@
-"""This file defines paths for key directories and files. Contents include:
-1. Directory Names: Path objects that specify the directories where we store code, data, results, etc.
-2. File Name Generators: functions used to programatically name processed datasets, results, graphs etc.
+"""Path helpers for data, results, and derived artifacts.
+
+Defines directory constants and filename generators used across the project.
 """
 
 from pathlib import Path
@@ -28,10 +28,14 @@ results_dir.mkdir(exist_ok=True)
 
 # Naming Functions
 def get_data_csv_file(data_name, **kwargs):
-    """:param data_name: string containing name of the dataset
-    :param kwargs: used to catch other args when unpacking dictionaries
-                   this allows us to call this function as get_results_file_name(**settings)
-    :return:
+    """Return the processed CSV file path for a dataset.
+
+    Args:
+        data_name: Dataset name.
+        **kwargs: Unused; accepted for API compatibility.
+
+    Returns:
+        Path to the processed CSV file.
     """
     assert isinstance(data_name, str) and len(data_name) > 0
     f = data_dir / data_name / f"{data_name}_processed.csv"
@@ -39,10 +43,15 @@ def get_data_csv_file(data_name, **kwargs):
 
 
 def get_data_file(data_name, action_set_name, **kwargs):
-    """:param data_name: string containing name of the dataset
-    :param kwargs: used to catch other args when unpacking dictionaries
-                   this allows us to call this function as get_results_file_name(**settings)
-    :return:
+    """Return the serialized dataset file path.
+
+    Args:
+        data_name: Dataset name.
+        action_set_name: Action set identifier.
+        **kwargs: Unused; accepted for API compatibility.
+
+    Returns:
+        Path to the dataset file.
     """
     assert isinstance(data_name, str) and len(data_name) > 0
     f = data_dir / f"{data_name}_{action_set_name}.data"
@@ -50,8 +59,15 @@ def get_data_file(data_name, action_set_name, **kwargs):
 
 
 def get_action_set_file(data_name, action_set_name, **kwargs):
-    """:param data_name: string containing name of the dataset
-    :return: file name
+    """Return the action set file path.
+
+    Args:
+        data_name: Dataset name.
+        action_set_name: Action set identifier.
+        **kwargs: Unused; accepted for API compatibility.
+
+    Returns:
+        Path to the action set file.
     """
     assert isinstance(data_name, str) and len(data_name) > 0
     assert isinstance(action_set_name, str) and len(action_set_name) > 0
@@ -60,6 +76,17 @@ def get_action_set_file(data_name, action_set_name, **kwargs):
 
 
 def get_model_file(data_name, action_set_name, model_type, **kwargs):
+    """Return the model file path for a dataset/action set.
+
+    Args:
+        data_name: Dataset name.
+        action_set_name: Action set identifier.
+        model_type: Model type identifier.
+        **kwargs: Optional parameters such as `n_features` or `model_number`.
+
+    Returns:
+        Path to the model file.
+    """
     assert isinstance(data_name, str) and len(data_name) > 0
 
     f = f"{data_name}_{action_set_name}_{model_type}"
@@ -80,6 +107,18 @@ def get_model_file(data_name, action_set_name, model_type, **kwargs):
 
 
 def get_benchmark_results_file(data_name, action_set_name, method_name, model_type, **kwargs):
+    """Return the benchmark results file path.
+
+    Args:
+        data_name: Dataset name.
+        action_set_name: Action set identifier.
+        method_name: Method name.
+        model_type: Model type identifier.
+        **kwargs: Unused; accepted for API compatibility.
+
+    Returns:
+        Path to the benchmark results file.
+    """
     assert isinstance(data_name, str) and len(data_name) > 0
     assert isinstance(method_name, str) and len(action_set_name) > 0
     assert isinstance(action_set_name, str) and len(action_set_name) > 0
@@ -88,6 +127,17 @@ def get_benchmark_results_file(data_name, action_set_name, method_name, model_ty
 
 
 def get_audit_results_file(data_name, action_set_name, model_type, **kwargs):
+    """Return the audit results file path.
+
+    Args:
+        data_name: Dataset name.
+        action_set_name: Action set identifier.
+        model_type: Model type identifier.
+        **kwargs: Optional parameters such as `model_number`, `resp_thresh`, and `alpha`.
+
+    Returns:
+        Path to the audit results file.
+    """
     assert isinstance(data_name, str) and len(data_name) > 0
     assert isinstance(action_set_name, str) and len(action_set_name) > 0
 
@@ -118,6 +168,16 @@ def get_audit_results_file(data_name, action_set_name, model_type, **kwargs):
 
 
 def get_demo_results_file(data_name, action_set_name, **kwargs):
+    """Return the demo results file path.
+
+    Args:
+        data_name: Dataset name.
+        action_set_name: Action set identifier.
+        **kwargs: Optional parameters for response threshold and model type.
+
+    Returns:
+        Path to the demo results file.
+    """
     assert isinstance(data_name, str) and len(data_name) > 0
     assert isinstance(action_set_name, str) and len(action_set_name) > 0
 
@@ -139,6 +199,18 @@ def get_demo_results_file(data_name, action_set_name, **kwargs):
 
 
 def get_stats_file(data_name, action_set_name, method_name, model_type, **kwargs):
+    """Return the statistics file path.
+
+    Args:
+        data_name: Dataset name.
+        action_set_name: Action set identifier.
+        method_name: Method name.
+        model_type: Model type identifier.
+        **kwargs: Unused; accepted for API compatibility.
+
+    Returns:
+        Path to the stats file.
+    """
     assert isinstance(data_name, str) and len(data_name) > 0
     assert isinstance(method_name, str) and len(method_name) > 0
     assert isinstance(action_set_name, str) and len(action_set_name) > 0
@@ -147,14 +219,15 @@ def get_stats_file(data_name, action_set_name, method_name, model_type, **kwargs
 
 
 def get_reachable_db_file(data_name, action_set_name, **kwargs):
-    """Returns file name of a reachable set dataset.
+    """Return the reachable set database path.
 
-    :param data_name: string containing name of the dataset
-    :param action_set_name: string containing name of the action set
-    :param kwargs: used to catch other args when unpacking dictionaies
-                   this allows us to call this function as get_results_file_name(**settings)
+    Args:
+        data_name: Dataset name.
+        action_set_name: Action set identifier.
+        **kwargs: Unused; accepted for API compatibility.
 
-    :return: Path of results object
+    Returns:
+        Path to the reachable set database.
     """
     assert isinstance(data_name, str) and len(data_name) > 0
     assert isinstance(action_set_name, str) and len(action_set_name) > 0
@@ -165,13 +238,17 @@ def get_reachable_db_file(data_name, action_set_name, **kwargs):
 
 
 def get_explainer_file(data_name, model_type, explainer_type, action_set_name=None, **kwargs):
-    """Returns file name of a explainer object (i.e. lime or shap).
+    """Return the explainer object file path.
 
-    :param data_name: dataset name
-    :param model_type: model type
-    :param explainer_name: explainer name
-    :param return_both: if True, returns both the original explainer and actionAwareExplainer associated with action_set_name
-    :param action_set_name: action set name (optional)
+    Args:
+        data_name: Dataset name.
+        model_type: Model type identifier.
+        explainer_type: Explainer type identifier.
+        action_set_name: Optional action set name.
+        **kwargs: Unused; accepted for API compatibility.
+
+    Returns:
+        Path to the explainer file.
     """
     if "actionAware" in explainer_type:
         header = f"{data_name}_{action_set_name}_{model_type}_{explainer_type}"
@@ -182,6 +259,18 @@ def get_explainer_file(data_name, model_type, explainer_type, action_set_name=No
 
 
 def get_metrics_file(data_name, action_set_name, model_type=None, explainer_type=None, **kwargs):
+    """Return the metrics file path.
+
+    Args:
+        data_name: Dataset name.
+        action_set_name: Action set identifier.
+        model_type: Optional model type identifier.
+        explainer_type: Optional explainer type identifier.
+        **kwargs: Unused; accepted for API compatibility.
+
+    Returns:
+        Path to the metrics file.
+    """
     assert isinstance(data_name, str) and len(data_name) > 0
     assert isinstance(action_set_name, str) and len(action_set_name) > 0
     header = f"{data_name}_{action_set_name}"
@@ -194,6 +283,16 @@ def get_metrics_file(data_name, action_set_name, model_type=None, explainer_type
 
 
 def get_rij_file(data_name, action_set_name, **kwargs):
+    """Return the R_ij data file path.
+
+    Args:
+        data_name: Dataset name.
+        action_set_name: Action set identifier.
+        **kwargs: Unused; accepted for API compatibility.
+
+    Returns:
+        Path to the R_ij data file.
+    """
     assert isinstance(data_name, str) and len(data_name) > 0
     assert isinstance(action_set_name, str) and len(action_set_name) > 0
     f = results_dir / f"{data_name}_{action_set_name}_rij.df"
@@ -201,6 +300,18 @@ def get_rij_file(data_name, action_set_name, **kwargs):
 
 
 def get_plot_data_file(data_name, action_set_name, model_type, explainer_type, **kwargs):
+    """Return the plot data file path.
+
+    Args:
+        data_name: Dataset name.
+        action_set_name: Action set identifier.
+        model_type: Model type identifier.
+        explainer_type: Explainer type identifier.
+        **kwargs: Unused; accepted for API compatibility.
+
+    Returns:
+        Path to the plot data file.
+    """
     assert isinstance(data_name, str) and len(data_name) > 0
     assert isinstance(action_set_name, str) and len(action_set_name) > 0
     assert isinstance(model_type, str) and len(model_type) > 0
@@ -209,7 +320,7 @@ def get_plot_data_file(data_name, action_set_name, model_type, explainer_type, *
 
 
 def get_plot_file(data_name, action_set_name, model_type, explainer_type, plot_name, **kwargs):
-    """Return file name of a plot (without extension, extension set by plotting script)."""
+    """Return file name of a plot (without extension)."""
     assert isinstance(data_name, str) and len(data_name) > 0
     assert isinstance(action_set_name, str) and len(action_set_name) > 0
     assert isinstance(model_type, str) and len(model_type) > 0

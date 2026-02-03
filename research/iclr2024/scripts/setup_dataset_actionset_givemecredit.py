@@ -1,16 +1,17 @@
-import os
-import sys
 
 # fmt:off
+import pprint
+
 import numpy as np
 import pandas as pd
-from src.paths import *
+from scripts.utils import check_processing_loss, tabulate_actions, tally
 from src import fileutils
 from src.data import BinaryClassificationDataset
+from src.paths import *
+
 from reachml import ActionSet, ReachableSetDatabase
 from reachml.constraints import *
-from scripts.utils import check_processing_loss, check_responsiveness, tabulate_actions, tally
-import pprint
+
 pp = pprint.PrettyPrinter(depth=2)
 
 
@@ -25,8 +26,7 @@ settings = {
 
 
 def process_dataset(raw_df):
-    """
-    `NoSeriousDlqin2yrs`:Person did not experience 90 days past due delinquency or worse
+    """`NoSeriousDlqin2yrs`:Person did not experience 90 days past due delinquency or worse
     `Age`: Age of borrower in years
     `NumberOfDependents`: Number of dependents in family excluding themselves (spouse, children etc.)
     #
@@ -42,7 +42,6 @@ def process_dataset(raw_df):
     `NumberOfTime60-89DaysPastDueNotWorse`: Number of times borrower has been 60-89 days past due but no worse in the last 2 years.
     `NumberOfTimes90DaysLate`:Number of times borrower has been 90 days or more past due.
     """
-
     raw_df = pd.DataFrame(raw_df)
     raw_df = raw_df[raw_df.age >= 21]  # note: one person has age == 0
     # todo: remove these - I commented them out for now - I think it's better to keep outliers if you can
@@ -296,11 +295,11 @@ for name in settings["action_set_names"]:
         for status in [True, False]:
             subset_df = recourse_df.loc[recourse_df["recourse"] == status]
             reachable_scores = np.array(subset_df['reachable_scores'].to_list()).mean(axis = 0)
-            reachable_scores = {n: np.round(s * 100, 1) for n, s in zip(action_set.names, reachable_scores)}
+            reachable_scores = {n: np.round(s * 100, 1) for n, s in zip(action_set.names, reachable_scores, strict=False)}
             recourse_scores = np.array(subset_df['recourse_scores'].to_list()).mean(axis = 0)
-            recourse_scores = {n: np.round(s * 100, 1) for n, s in zip(action_set.names, recourse_scores)}
+            recourse_scores = {n: np.round(s * 100, 1) for n, s in zip(action_set.names, recourse_scores, strict=False)}
             fixed_scores = np.array(subset_df['immutability_scores'].to_list()).mean(axis = 0)
-            fixed_scores = {n: np.round(s * 100, 1) for n, s in zip(action_set.names, fixed_scores)}
+            fixed_scores = {n: np.round(s * 100, 1) for n, s in zip(action_set.names, fixed_scores, strict=False)}
             score_tables += [
                 #pd.DataFrame.from_dict(fixed_scores, orient = "index", columns = [f"fixed_{status}"]),
                 pd.DataFrame.from_dict(recourse_scores, orient = "index", columns = [f"recourse_{status}"]),

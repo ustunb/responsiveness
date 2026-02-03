@@ -18,21 +18,21 @@ from .scip_utils import (
 
 
 class ScipBackend(MIPBackend):
+    """SCIP solver backend implementation."""
+
     solver_name = "scip"
 
     def build_model(self, action_set, x, actionable_indices):
+        """Build and return a SCIP model and indices."""
         # Set up SCIP object
         model = Model()
         model.setParam("presolving/convertinttobin/maxdomainsize", 0)
         model.setParam("presolving/maxrounds", 0)
-        #model.setParam("presolving/linear/maxrounds", 0)
+        # model.setParam("presolving/linear/maxrounds", 0)
 
         # variable parameters
         a_lb = action_set.get_bounds(x, bound_type="lb")
         a_ub = action_set.get_bounds(x, bound_type="ub")
-        a_pos_max = np.abs(a_ub)
-        a_neg_max = np.abs(a_lb)
-        
         a_types = get_scip_variable_types(action_set, actionable_indices)
         variable_args = {
             "a": get_scip_variable_args(
@@ -40,52 +40,56 @@ class ScipBackend(MIPBackend):
                 vtype="C",
                 lb=a_lb,
                 ub=a_ub,
-                obj=0.0
+                obj=0.0,
             ),
             "a_pos": get_scip_variable_args(
                 name=[f"a[{j}]_pos" for j in actionable_indices],
                 vtype=a_types,
                 lb=0,
                 ub=np.abs(a_ub),
-                obj=1.0
+                obj=1.0,
             ),
-            "a_neg" : get_scip_variable_args(
+            "a_neg": get_scip_variable_args(
                 name=[f"a[{j}]_neg" for j in actionable_indices],
                 vtype=a_types,
                 lb=0.0,
                 ub=np.abs(a_lb),
-                obj=1.0
+                obj=1.0,
             ),
-            "a_sign" : get_scip_variable_args(
+            "a_sign": get_scip_variable_args(
                 name=[f"a[{j}]_sign" for j in actionable_indices],
                 vtype="B",
                 lb=0.0,
                 ub=1.0,
-                obj=0.0
+                obj=0.0,
             ),
             "c": get_scip_variable_args(
                 name=[f"c[{j}]" for j in actionable_indices],
                 vtype="C",
                 lb=a_lb,
                 ub=a_ub,
-                obj=0.0
-            )
+                obj=0.0,
+            ),
         }
-        
+
         indices = SCIPGroupedVariableIndices(model, variable_args)
-        scip_vars = {} 
+        scip_vars = {}
         for group, d in variable_args.items():
             names = d.get("names", d.get("name"))
-            lb    = d["lb"]
-            ub    = d["ub"]
+            lb = d["lb"]
+            ub = d["ub"]
             vtype = d.get("types", d.get("vtype"))
-            obj   = d.get("obj", 0.0)
+            obj = d.get("obj", 0.0)
 
             n = len(names)
-            if not isinstance(lb, list):    lb    = [lb]    * n
-            if not isinstance(ub, list):    ub    = [ub]    * n
-            if not isinstance(vtype, list): vtype = [vtype] * n
-            if not isinstance(obj, list):   obj   = [obj]   * n
+            if not isinstance(lb, list):
+                lb = [lb] * n
+            if not isinstance(ub, list):
+                ub = [ub] * n
+            if not isinstance(vtype, list):
+                vtype = [vtype] * n
+            if not isinstance(obj, list):
+                obj = [obj] * n
 
             scip_vars[group] = [
                 model.addVar(name=nm, lb=float(lo), ub=float(hi), vtype=vt, obj=float(oc))
@@ -93,38 +97,25 @@ class ScipBackend(MIPBackend):
             ]
 
         # add linking + absolute-value constraints
-        for j in (actionable_indices):
+        for j in actionable_indices:
             a_j = scip_vars["a"][j]
             a_pos_j = scip_vars["a_pos"][j]
             a_neg_j = scip_vars["a_neg"][j]
             c_j = scip_vars["c"][j]
 
             a_j_name = indices.names["a"][j]
-            
-            model.addCons(
-                a_pos_j - a_j >= 0,
-                name=f"abs_val_pos_{a_j_name}"
-            )
-            model.addCons(
-                a_neg_j + a_j >= 0,
-                name=f"abs_val_neg_{a_j_name}"
-            )
-            model.addCons(
-                a_j == a_pos_j - a_neg_j,
-                name=f"decomp_[{j}]"
-            )
 
-            con = model.addCons(
-                c_j == a_j,
-                name=f"set_c_[{j}]"
-            )
+            model.addCons(a_pos_j - a_j >= 0, name=f"abs_val_pos_{a_j_name}")
+            model.addCons(a_neg_j + a_j >= 0, name=f"abs_val_neg_{a_j_name}")
+            model.addCons(a_j == a_pos_j - a_neg_j, name=f"decomp_[{j}]")
+
+            con = model.addCons(c_j == a_j, name=f"set_c_[{j}]")
 
             indices.add_constraint(f"set_c_[{j}]", con)
-        
+
         model.hideOutput()
 
-        terms = [scip_vars["a_pos"][j] + scip_vars["a_neg"][j]
-            for j in actionable_indices]
+        terms = [scip_vars["a_pos"][j] + scip_vars["a_neg"][j] for j in actionable_indices]
         obj_expr = quicksum(terms)
 
         model.setObjective(obj_expr, "minimize")
@@ -132,6 +123,7 @@ class ScipBackend(MIPBackend):
         return model, indices
 
     def configure(self, model: Model, print_flag: bool) -> Model:
+        """Configure solver parameters for a SCIP model."""
         from pyscipopt import SCIP_PARAMEMPHASIS
 
         model.setEmphasis(SCIP_PARAMEMPHASIS.NUMERICS)
@@ -145,20 +137,24 @@ class ScipBackend(MIPBackend):
         return model
 
     def add_constraints(self, model, indices, action_set: ActionSet, x: np.ndarray):
+        """Add action set constraints to the model."""
         for con in action_set.constraints:
             model, indices = con.add_to_scip(scip=model, indices=indices, x=x)
         return model, indices
 
     # Solve/inspect
     def solve(self, model: Model) -> None:
+        """Solve the model in-place."""
         model.optimize()
 
     def has_solution(self, model: Model) -> bool:
+        """Return True if the model has a feasible solution."""
         # Use presence of a best solution rather than status, to be robust
         # return model.getBestSol() is not None
         return model.getNSols() > 0
 
     def read_vectors(self, model: Model, indices, names: List[str]) -> Dict[str, np.ndarray]:
+        """Read solution vectors for the given names."""
         sol = model.getBestSol()
         if sol is None:
             return {nm: None for nm in names}
@@ -178,6 +174,7 @@ class ScipBackend(MIPBackend):
         actionable_indices: List[int],
         settings: MIPSettings,
     ) -> Tuple[object, object, int]:
+        """Add nogood constraints to exclude provided actions."""
         # This mirrors the logic in the original scip path inside mip.py.
         # In SCIP, new variables/constraints must be added on the original problem.
         # free the transform first (add_nogood always called after solving)
@@ -231,15 +228,36 @@ class ScipBackend(MIPBackend):
                 grouped["delta_sign"]["lb"].append(0.0)
                 grouped["delta_sign"]["types"].append("B")
 
-                v_pos = model.addVar(lb=0.0, ub=float(ub_dp), vtype=a_types[j], name=name_pos, obj=0.0)
-                v_neg = model.addVar(lb=0.0, ub=float(ub_dn), vtype=a_types[j], name=name_neg, obj=0.0)
-                v_sgn = model.addVar(lb=0.0, ub=1.0, vtype="B", name=name_sgn, obj=0.0)
+                model.addVar(
+                    lb=0.0,
+                    ub=float(ub_dp),
+                    vtype=a_types[j],
+                    name=name_pos,
+                    obj=0.0,
+                )
+                model.addVar(
+                    lb=0.0,
+                    ub=float(ub_dn),
+                    vtype=a_types[j],
+                    name=name_neg,
+                    obj=0.0,
+                )
+                model.addVar(
+                    lb=0.0,
+                    ub=1.0,
+                    vtype="B",
+                    name=name_sgn,
+                    obj=0.0,
+                )
 
             # sum(abs) >= eps_min
-            terms = [
-                indices.get_var(model, f"delta[{j, k}]_pos") for j in actionable_indices
-            ] + [indices.get_var(model, f"delta[{j, k}]_neg") for j in actionable_indices]
-            model.addCons(quicksum(terms) >= float(settings.eps_min), name=f"sum_abs_dist_val_{k}")
+            terms = [indices.get_var(model, f"delta[{j, k}]_pos") for j in actionable_indices] + [
+                indices.get_var(model, f"delta[{j, k}]_neg") for j in actionable_indices
+            ]
+            model.addCons(
+                quicksum(terms) >= float(settings.eps_min),
+                name=f"sum_abs_dist_val_{k}",
+            )
 
             # feature-wise linking
             for idx_j, j in enumerate(actionable_indices):
@@ -248,9 +266,18 @@ class ScipBackend(MIPBackend):
                 sign = indices.get_var(model, f"delta[{j, k}]_sign")
                 c_j = indices.get_var(model, f"c[{j}]")
 
-                model.addCons(pos <= float(Dp_k[idx_j]) * sign, name=f"nogood_pos_if_{j}_{k}")
-                model.addCons(neg + float(Dn_k[idx_j]) * sign <= float(Dn_k[idx_j]), name=f"nogood_neg_if_{j}_{k}")
-                model.addCons(c_j - pos + neg == float(ak[idx_j]), name=f"nogood_dist_{j}_{k}")
+                model.addCons(
+                    pos <= float(Dp_k[idx_j]) * sign,
+                    name=f"nogood_pos_if_{j}_{k}",
+                )
+                model.addCons(
+                    neg + float(Dn_k[idx_j]) * sign <= float(Dn_k[idx_j]),
+                    name=f"nogood_neg_if_{j}_{k}",
+                )
+                model.addCons(
+                    c_j - pos + neg == float(ak[idx_j]),
+                    name=f"nogood_dist_{j}_{k}",
+                )
 
         # now pass grouped dict for indices bookkeeping
         indices.append_variables(model, grouped)
@@ -259,6 +286,7 @@ class ScipBackend(MIPBackend):
         return model, indices, len(A_nogood)
 
     def stats(self, model: Model) -> Dict:
+        """Return solver statistics for the model."""
         return get_scip_stats(model)
 
     # Generic constraint operations
@@ -271,6 +299,7 @@ class ScipBackend(MIPBackend):
         sense: str,
         rhs: float,
     ) -> None:
+        """Add a single linear constraint to the model."""
         try:
             model.freeTransform()
         except Exception:
@@ -296,7 +325,10 @@ class ScipBackend(MIPBackend):
         # store for deletion
         indices.add_constraint(name, con)
 
-    def delete_constraint(self, model: Model, indices: SCIPGroupedVariableIndices, name: str) -> None:
+    def delete_constraint(
+        self, model: Model, indices: SCIPGroupedVariableIndices, name: str
+    ) -> None:
+        """Delete a linear constraint by name."""
         try:
             model.freeTransform()
         except Exception:
@@ -306,4 +338,5 @@ class ScipBackend(MIPBackend):
         model.delCons(con)
 
     def solution_status(self, model: Model) -> str:
+        """Return solver-native solution status."""
         return str(model.getStatus())

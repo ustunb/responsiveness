@@ -1,14 +1,16 @@
 import os
 import sys
+
 import psutil
-import rich
 
 sys.path.append(os.getcwd())
 
+import argparse
+
 import numpy as np
 import pandas as pd
-import argparse
 from tqdm.auto import tqdm
+
 from reachml import ReachableSetDatabase
 
 DB_ACTION_SET_NAME = "complex_nD"
@@ -31,8 +33,8 @@ if process_type not in ("pycharm"):
     args, _ = parser.parse_known_args()
     settings.update(vars(args))
 
-from src.paths import *
 from src import fileutils
+from src.paths import *
 
 # load action set and processed data
 data = fileutils.load(get_data_file(**settings))
@@ -63,7 +65,7 @@ results = {}
 
 if settings["method_name"] == "reach":
     predictions = clf.predict(rescale(data.X))
-    for idx, (x, y, fx) in tqdm(list(enumerate(zip(data.X, data.y, predictions)))):
+    for idx, (x, y, fx) in tqdm(list(enumerate(zip(data.X, data.y, predictions, strict=False)))):
         # pull reachable set
         R = db[x]
         flipped_idx = np.flatnonzero(clf.predict(rescale(R.X)) > 0)

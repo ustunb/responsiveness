@@ -14,12 +14,21 @@ from .base_mip import BaseMIP
 class EnumeratorMIP(BaseMIP):
     """Extend BaseMIP with helpers to enumerate distinct solutions."""
 
-    def __init__(self, action_set, x, print_flag: bool = False, solver: str = DEFAULT_SOLVER, **kwargs):
+    def __init__(
+        self,
+        action_set,
+        x,
+        print_flag: bool = False,
+        solver: str = DEFAULT_SOLVER,
+        **kwargs,
+    ):
+        """Initialize an enumerator-specific MIP wrapper."""
         super().__init__(action_set, x, print_flag=print_flag, solver=solver, **kwargs)
         self.n_sols = 0
 
     # Enumeration helpers
     def remove_actions(self, actions):
+        """Add nogood constraints for a list of actions."""
         assert isinstance(actions, list)
         self.mip, self.indices, added = self._backend.add_nogood(
             self.mip, self.indices, actions, self.actionable_indices, self.settings
@@ -31,6 +40,7 @@ class EnumeratorMIP(BaseMIP):
         return True
 
     def check_solution(self):
+        """Run backend-agnostic checks on the current solution."""
         # Perform basic sanity checks common across backends
         if not self.solution_exists:
             raise AssertionError("no feasible solution found")
@@ -40,9 +50,7 @@ class EnumeratorMIP(BaseMIP):
         a = vecs.get("a")
         a_pos = vecs.get("a_pos")
         a_neg = vecs.get("a_neg")
-        c = vecs.get("c")
         if a is not None and a_pos is not None and a_neg is not None:
             assert np.allclose(a, a_pos - a_neg)
             assert np.allclose(np.abs(a), a_pos + a_neg)
         return True
-

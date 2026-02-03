@@ -1,17 +1,19 @@
-"""
-Test Strategy
+"""Test Strategy
 target_mutability: True, False
 target_size: [1, 2]
 force: [True, False]
 change_violates_target_bound: [True, False]
 change_violates_target_sign: [True, False]
 """
-import pytest
-import pandas as pd
+
 import numpy as np
-from reachml import *
-from reachml.reachable_set import EnumeratedReachableSet
+import pandas as pd
+import pytest
+
+from reachml.action_set import ActionSet
 from reachml.constraints.switch import MutabilitySwitch
+from reachml.enumeration import ReachableSetEnumerator
+from reachml.reachable_set import EnumeratedReachableSet
 from reachml.utils import SUPPORTED_SOLVERS
 
 sortrows = lambda v: v[np.lexsort(v.T, axis=0), :]
@@ -28,9 +30,7 @@ def force(request):
 
 
 def get_test_case(on_value, force):
-    X = pd.DataFrame(
-        columns=["x0", "x1", "x2"], data=[[0, 0, -1], [0, 0, 0], [1, 1, 1]]
-    )
+    X = pd.DataFrame(columns=["x0", "x1", "x2"], data=[[0, 0, -1], [0, 0, 0], [1, 1, 1]])
 
     all_values = np.array(
         [
@@ -50,7 +50,7 @@ def get_test_case(on_value, force):
     )
 
     expected_sets = {}
-    if on_value == 0 and force == True:
+    if on_value == 0 and force:
         expected_sets = {
             (0, 0, -1): [],  # infeasible because x[0] = 0 -> x[1] ≠ 0 due to force
             (0, 0, 0): [
@@ -71,7 +71,7 @@ def get_test_case(on_value, force):
                 [0, 1, 1],  # turn on - no change,
             ],
         }
-    elif on_value == 0 and force == False:
+    elif on_value == 0 and not force:
         expected_sets = {
             (0, 0, -1): [],  # infeasible because x[0] = 0 -> x[2] = 0
             #
@@ -95,13 +95,13 @@ def get_test_case(on_value, force):
                 [1, 0, -1],  # change x[1] and x[2]
             ],
         }
-    elif on_value == 1 and force == True:
+    elif on_value == 1 and force:
         expected_sets = {
             (0, 0, -1): [],  # infeasible because x[0] = 0 -> x[1] ≠ 0
             (0, 0, 0): [],  # infeasible because x[0] = 0 -> x[1] ≠ 0, x[2] ≠ 0
             (1, 1, 1): [],  # infeasible because x[0] = 1 -> x[1] = 0, x[2] = 0
         }
-    elif on_value == 1 and force == False:
+    elif on_value == 1 and not force:
         expected_sets = {
             (0, 0, -1): [
                 [0, 0, -1],  # current point
@@ -129,8 +129,7 @@ def get_test_case(on_value, force):
         "A": ActionSet(X),
         "all_values": sortrows(all_values),
         "expected_sets": {
-            tuple(k): np.array(v) if len(v) > 0 else np.array(v)
-            for k, v in expected_sets.items()
+            tuple(k): np.array(v) if len(v) > 0 else np.array(v) for k, v in expected_sets.items()
         },
     }
 
@@ -166,6 +165,7 @@ def test_initialization(on_value, force):
     dropped = A.constraints.drop(const_id)
     assert dropped
 
+
 @pytest.mark.parametrize("solver", SUPPORTED_SOLVERS)
 def test_enumeration_with_switch_constraints(on_value, force, solver):
     test_case = get_test_case(on_value, force)
@@ -181,7 +181,7 @@ def test_enumeration_with_switch_constraints(on_value, force, solver):
     )
     A.constraints.add(constraint=cons)
     print(cons)
-    for idx, x in enumerate(X.values):
+    for _idx, x in enumerate(X.values):
         if cons.check_feasibility(x):
             print(f"enumeration for x={x}\n")
             expected_set = test_case["expected_sets"].get(tuple(x))
@@ -218,7 +218,7 @@ def test_enumeration_with_switch_constraints_scip_and_cplex(on_value, force):
     )
     A.constraints.add(constraint=cons)
     print(cons)
-    for idx, x in enumerate(X.values):
+    for _idx, x in enumerate(X.values):
         if cons.check_feasibility(x):
             print(f"enumeration for x={x}\n")
             expected_set = test_case["expected_sets"].get(tuple(x))
@@ -230,15 +230,12 @@ def test_enumeration_with_switch_constraints_scip_and_cplex(on_value, force):
             cplex_reachable_set.generate()
             assert cplex_reachable_set.complete
             assert np.array_equal(sortrows(cplex_reachable_set.X), sortrows(expected_set))
-            assert np.array_equal(
-                sortrows(scip_reachable_set.X), sortrows(cplex_reachable_set.X)
-            )
+            assert np.array_equal(sortrows(scip_reachable_set.X), sortrows(cplex_reachable_set.X))
         else:
             with pytest.raises(AssertionError):
                 ReachableSetEnumerator(x=x, action_set=A, solver="scip")
             with pytest.raises(AssertionError):
                 ReachableSetEnumerator(x=x, action_set=A, solver="cplex")
-    
 
 
 if __name__ == "__main__":

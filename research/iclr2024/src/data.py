@@ -1,17 +1,16 @@
-"""
-Helper classes to represent and manipulate datasets for a binary classification task
+"""Helper classes to represent and manipulate datasets for a binary classification task
 """
 
 import warnings
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import List
 
 import numpy as np
 import pandas as pd
-from pathlib import Path
-from dataclasses import dataclass, field
-from typing import List
-from src.cv import validate_cvindices, generate_cvindices
-from imblearn.under_sampling import RandomUnderSampler
 from imblearn.over_sampling import RandomOverSampler
+from imblearn.under_sampling import RandomUnderSampler
+from src.cv import generate_cvindices, validate_cvindices
 
 
 class BinaryClassificationDataset(object):
@@ -20,9 +19,7 @@ class BinaryClassificationDataset(object):
     SAMPLE_TYPES = ("training", "validation", "test")
 
     def __init__(self, X, y, **kwargs):
-        """
-
-        :param X:
+        """:param X:
         :param y:
         :param kwargs:
         """
@@ -45,8 +42,7 @@ class BinaryClassificationDataset(object):
         self.reset()
 
     def reset(self):
-        """
-        initialize data object to a state before CV
+        """Initialize data object to a state before CV
         :return:
         """
         self._fold_id = None
@@ -138,8 +134,7 @@ class BinaryClassificationDataset(object):
 
     @staticmethod
     def read_csv(data_file, **kwargs):
-        """
-        loads raw data from CSV
+        """Loads raw data from CSV
         :param data_file: Path to the data_file
         :param helper_file: Path to the helper_file or None.
         :return:
@@ -193,18 +188,18 @@ class BinaryClassificationDataset(object):
     #### variable names ####
     @property
     def names(self):
-        """pointer to names of X, y"""
+        """Pointer to names of X, y"""
         return self._names
 
     #### properties of the full dataset ####
     @property
     def n(self):
-        """number of examples in full dataset"""
+        """Number of examples in full dataset"""
         return self._full.n
 
     @property
     def d(self):
-        """number of features in full dataset"""
+        """Number of features in full dataset"""
         return self._full.d
 
     @property
@@ -217,12 +212,12 @@ class BinaryClassificationDataset(object):
 
     @property
     def X(self):
-        """feature matrix"""
+        """Feature matrix"""
         return self._full.X
 
     @property
     def y(self):
-        """label vector"""
+        """Label vector"""
         return self._full.y
 
     @property
@@ -240,7 +235,7 @@ class BinaryClassificationDataset(object):
 
     @property
     def fold_id(self):
-        """string representing the indices of cross-validation folds
+        """String representing the indices of cross-validation folds
         K05N01 = 5-fold CV – 1st replicate
         K05N02 = 5-fold CV – 2nd replicate (in case you want to run 5-fold CV one more time)
         K10N01 = 10-fold CV – 1st replicate
@@ -261,32 +256,30 @@ class BinaryClassificationDataset(object):
 
     @property
     def folds(self):
-        """integer array showing the fold number of each sample in the full dataset"""
+        """Integer array showing the fold number of each sample in the full dataset"""
         return self._cvindices.get(self._fold_id)
 
     @property
     def fold_number_range(self):
-        """range of all possible training folds"""
+        """Range of all possible training folds"""
         return self._fold_number_range
 
     @property
     def fold_num_validation(self):
-        """integer from 1 to K representing the validation fold"""
+        """Integer from 1 to K representing the validation fold"""
         return self._fold_num_validation
 
     @property
     def fold_num_test(self):
-        """integer from 1 to K representing the test fold"""
+        """Integer from 1 to K representing the test fold"""
         return self._fold_num_test
 
     def split(self, fold_id, fold_num_validation=None, fold_num_test=None):
-        """
-        :param fold_id:
+        """:param fold_id:
         :param fold_num_validation: fold to use as a validation set
         :param fold_num_test: fold to use as a hold-out test set
         :return:
         """
-
         if fold_id is not None:
             self.fold_id = fold_id
         else:
@@ -326,8 +319,7 @@ class BinaryClassificationDataset(object):
         replicates=3,
         seed=None,
     ):
-        """
-        :param strata:
+        """:param strata:
         :param total_folds_for_cv:
         :param total_folds_for_inner_cv:
         :param replicates:
@@ -382,7 +374,7 @@ class BinaryClassificationSample:
         return chk
 
     def __check_rep__(self):
-        """returns True is object satisfies representation invariants"""
+        """Returns True is object satisfies representation invariants"""
         assert isinstance(self.X, np.ndarray)
         assert isinstance(self.y, np.ndarray)
         assert self.n == len(self.y)
@@ -409,8 +401,7 @@ class BinaryClassificationSample:
 
     @property
     def df(self):
-        """
-        pandas data.frame containing y, G, X for this sample
+        """Pandas data.frame containing y, G, X for this sample
         """
         df = pd.DataFrame(self.X, columns=self.parent.names.X)
         df.insert(column=self.parent.names.y, value=self.y, loc=0)
@@ -418,7 +409,7 @@ class BinaryClassificationSample:
 
     #### methods #####
     def filter(self, indices):
-        """filters samples based on indices"""
+        """Filters samples based on indices"""
         assert isinstance(indices, np.ndarray)
         assert indices.ndim == 1 and indices.shape[0] == self.n
         assert np.isin(indices, (0, 1)).all()
@@ -440,12 +431,11 @@ class BinaryClassificationVariableNames:
 
     @staticmethod
     def check_name_str(s):
-        """check variable name"""
+        """Check variable name"""
         return isinstance(s, str) and len(s.strip()) > 0
 
     def __check_rep__(self):
-        """check if this object satisfies representation invariants"""
-
+        """Check if this object satisfies representation invariants"""
         assert isinstance(self.X, list) and all(
             [self.check_name_str(n) for n in self.X]
         ), "X must be a list of strings"
@@ -455,8 +445,7 @@ class BinaryClassificationVariableNames:
 
 
 def undersample_by_label(data, random_state=None):
-    """
-    oversample dataset to equalize number of positive and negative labels in each group
+    """Oversample dataset to equalize number of positive and negative labels in each group
     :param data:
     :param kwargs:
     :return:
@@ -477,8 +466,7 @@ def undersample_by_label(data, random_state=None):
 
 
 def oversample_by_label(data, random_state=None):
-    """
-    oversample dataset to equalize number of positive and negative labels in each group
+    """Oversample dataset to equalize number of positive and negative labels in each group
     :param data:
     :param kwargs:
     :return:

@@ -1,15 +1,11 @@
-"""
-this file contains functions to compute standard classification metrics
+"""this file contains functions to compute standard classification metrics
 and run hypothesis tests to compare performance differences
 """
 import numpy as np
-from scipy import stats as st
-from sklearn.utils import resample
-from sklearn.metrics import log_loss
+
 
 def compute_error(y_true, y_pred):
-    """
-    computes error rate for a binary classifier
+    """Computes error rate for a binary classifier
     :param y_true:
     :param y_pred: predictions
     :return:
@@ -17,8 +13,7 @@ def compute_error(y_true, y_pred):
     return np.not_equal(y_true, y_pred).mean()
 
 def compute_log_loss(y_true, y_pred, eps=1e-15):
-    """
-    computes mean logistic loss using labels and probability predictions
+    """Computes mean logistic loss using labels and probability predictions
     :param y_true: vector of true labels - y_true[i] in (-1,+1) and y_true[i] (0,1) are both OK
     :param y_pred: vector of predicted probabilities
     :param eps: minimum distance that y_pred must maintain from 0 and 1
@@ -60,8 +55,7 @@ def compute_log_loss(y_true, y_pred, eps=1e-15):
     return -1 * np.log(L).mean()
 
 def compute_auc(y_true, y_pred):
-    """
-    computes AUC for a binary classifier quickly
+    """Computes AUC for a binary classifier quickly
     :param y_true: vector of true classes
     :param y_pred: vector of predicted probabilities
     :return: auc
@@ -80,8 +74,7 @@ def compute_auc(y_true, y_pred):
     return auc
 
 def compute_ece(y_true, y_pred, n_bins=10):
-    """
-    computes the expected calibration error quickly
+    """Computes the expected calibration error quickly
     :param y_true: vector of true labels
     :param y_pred: vector of predicted probabilities
     :param n_bins: 10

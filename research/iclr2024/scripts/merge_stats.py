@@ -1,11 +1,8 @@
-import os
-import sys
 import itertools
 
 import pandas as pd
-from src.paths import *
 from src import fileutils
-from src.data import BinaryClassificationDataset
+from src.paths import *
 
 audit_output_file = results_dir / "audit_stats.csv"
 model_output_file = results_dir / "model_stats.csv"

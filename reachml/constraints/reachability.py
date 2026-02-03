@@ -128,7 +128,9 @@ class ReachabilityConstraint(ActionabilityConstraint):
     def add_to_cpx(self, cpx, indices, x):
         """Add reachability constraints to a CPLEX model."""
         from cplex import Cplex, SparsePair
+
         from ..mip.backends.cplex_utils import combine, get_cpx_variable_args
+
         assert isinstance(cpx, Cplex)
         reachable_points, action_values = self.adapt(x)
         n_points = len(reachable_points)
@@ -180,7 +182,9 @@ class ReachabilityConstraint(ActionabilityConstraint):
     def add_to_scip(self, scip, indices, x):
         """Add reachability constraints to a SCIP model."""
         from pyscipopt import Model, quicksum
+
         from ..mip.backends.scip_utils import combine
+
         assert isinstance(scip, Model)
 
         # Compute reachable mask and candidate action values

@@ -48,6 +48,8 @@ examples/paper/results
 
 # Notes
 *.ft
+CLAUDE.md
+AGENTS.md
 
 # odyssey
 *.command

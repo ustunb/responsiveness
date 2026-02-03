@@ -146,7 +146,7 @@ class PartitionSampler(ABC):
     @abstractmethod
     def sample(self, n, **kwargs):
         """Sample `n` points/actions for this partition."""
-        
+
     def check_feasibility(self, samples, solver=DEFAULT_SOLVER):
         """Check if the samples are feasible under constraints using MIP.
 

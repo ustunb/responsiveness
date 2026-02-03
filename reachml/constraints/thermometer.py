@@ -26,14 +26,15 @@ class ThermometerEncoding(ReachabilityConstraint):
     """
 
     def __init__(self, names, parent=None, step_direction=0, drop_invalid_values=True):
-        """:param names: names of features in thermometer encoding of a feature
-        :param parent: ActionSet
-        :param step_direction: 0 if the underlying value can increase/decrease
-                               1 if the underlying value can only increase
-                               -1 if the underlying value can only increase
+        """Initialize a thermometer encoding constraint.
 
-        :param drop_invalid_values: set to False to keep feature vectors that
-                                    violate the encoding
+        Args:
+            names: Feature names participating in the encoding.
+            parent: Optional `ActionSet`.
+            step_direction: 0 if the underlying value can increase/decrease,
+                1 if it can only increase, -1 if it can only decrease.
+            drop_invalid_values: If False, keep feature vectors that violate
+                the encoding.
         """
         assert len(names) >= 2, "constraint only applies to 2 or more features"
         values = np.array(list(product([0, 1], repeat=len(names))))
@@ -60,13 +61,16 @@ class ThermometerEncoding(ReachabilityConstraint):
 
     @property
     def step_direction(self):
+        """Directionality of allowed step changes."""
         return self._step_direction
 
     @staticmethod
     def check_encoding(x):
+        """Return True if `x` satisfies thermometer encoding ordering."""
         return np.array_equal(x, np.cumprod(x))
 
     def __str__(self):
+        """Return a human-readable description of the constraint."""
         name_list = ", ".join(f"`{n}`" for n in self.names)
         attribute_name = parse_attribute_name(self.names, default_name="continuous_attribute")
         s = f"Actions on [{name_list}] must preserve thermometer encoding of {attribute_name}."

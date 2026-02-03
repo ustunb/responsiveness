@@ -2,6 +2,7 @@ import argparse
 import itertools
 import subprocess
 import sys
+
 import rich
 from rich.panel import Panel
 

@@ -28,7 +28,23 @@ class BaseMIP:
     solver: str = DEFAULT_SOLVER
     settings: MIPSettings = MIPSettings()
 
-    def __init__(self, action_set, x, print_flag: bool = False, solver: str = DEFAULT_SOLVER, **kwargs):
+    def __init__(
+        self,
+        action_set,
+        x,
+        print_flag: bool = False,
+        solver: str = DEFAULT_SOLVER,
+        **kwargs,
+    ):
+        """Initialize a backend-specific MIP model.
+
+        Args:
+            action_set: ActionSet defining variables and constraints.
+            x: Current feature vector.
+            print_flag: If True, enable solver output.
+            solver: Backend identifier.
+            **kwargs: Overrides for `MIPSettings`.
+        """
         assert isinstance(action_set, ActionSet)
         assert any(action_set.actionable)
         self.action_set = action_set
@@ -56,26 +72,32 @@ class BaseMIP:
 
     # Generic operations
     def add_linear_constraint(self, name: str, terms, sense: str, rhs: float) -> None:
+        """Add a linear constraint to the underlying solver model."""
         self._backend.add_linear_constraint(self.mip, self.indices, name, terms, sense, rhs)
 
     def delete_constraint(self, name: str) -> None:
+        """Delete a linear constraint from the solver model."""
         self._backend.delete_constraint(self.mip, self.indices, name)
 
     # Solve
     def solve_model(self):
+        """Solve the solver model in-place."""
         self._backend.solve(self.mip)
 
     @property
     def solution_status(self) -> str:
+        """Solver-native status string for the current model."""
         return self._backend.solution_status(self.mip)
 
     # Solution state/info
     @property
     def solution_exists(self):
+        """Return True if a feasible solution exists."""
         return self._backend.has_solution(self.mip)
 
     @property
     def current_solution(self):
+        """Return the current action vector, if available."""
         vecs = self._backend.read_vectors(self.mip, self.indices, ["c"])
         c_vals = vecs.get("c")
         if c_vals is None:
@@ -107,4 +129,5 @@ class BaseMIP:
 
     @property
     def solution_info(self):
+        """Return solver statistics for the current model."""
         return self._backend.stats(self.mip)

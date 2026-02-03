@@ -1,3 +1,5 @@
+"""Utilities for presenting reachable sets in tabular form."""
+
 import pandas as pd
 
 # todo: control indices of points to print
@@ -5,18 +7,19 @@ import pandas as pd
 
 
 class ReachableSetPrinter(object):
-    """
-    Working class to print the points in a ReachableSets in a table that can be
-    included in a publication or website. This can eventually be appended to ReachableSet
+    """Format reachable set points for publication-style tables.
+
+    This class provides helpers to flatten reachable set points and render them.
     """
 
     def __init__(self, reachable_set):
+        """Initialize with a reachable set instance."""
         assert isinstance(reachable_set)
         self.reachable_set = reachable_set
         raise NotImplementedError()
 
     def to_flat_df(self):
-        """converts points to a data.frame"""
+        """Convert points to a flattened DataFrame."""
         raise NotImplementedError()
         tex_columns = ["features", "x", "x_new"]
         tex_df = self._df[tex_columns]
@@ -54,10 +57,10 @@ class ReachableSetPrinter(object):
         return flat_df.set_index("item")
 
     def to_latex(self, name_formatter="\\textit"):
-        """
-        converts current Flipset to Latex table
-        :param name_formatter:
-        :return:
+        """Convert the current flipset to a LaTeX table.
+
+        Args:
+            name_formatter: Function name to wrap variable names in LaTeX.
         """
         raise NotImplementedError()
         flat_df = self.to_flat_df()

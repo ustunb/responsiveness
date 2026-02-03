@@ -35,8 +35,7 @@ settings = {
 
 
 def process_dataset(raw_df):
-    """
-    `NoSeriousDlqin2yrs`:Person did not experience 90 days past due delinquency or worse
+    """`NoSeriousDlqin2yrs`:Person did not experience 90 days past due delinquency or worse
     `Age`: Age of borrower in years
     `NumberOfDependents`: Number of dependents in family excluding themselves (spouse, children etc.)
     #
@@ -52,7 +51,6 @@ def process_dataset(raw_df):
     `NumberOfTime60-89DaysPastDueNotWorse`: Number of times borrower has been 60-89 days past due but no worse in the last 2 years.
     `NumberOfTimes90DaysLate`:Number of times borrower has been 90 days or more past due.
     """
-
     raw_df = pd.DataFrame(raw_df)
     raw_df = raw_df[raw_df.age >= 21]  # note: one person has age == 0
     # todo: remove these - I commented them out for now - I think it's better to keep outliers if you can

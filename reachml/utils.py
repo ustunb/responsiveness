@@ -304,6 +304,7 @@ def tally_predictions(i, database, data, predictor, target=1):
     point_df["same"] = database[x].scores(point_mask=~S, weigh_changes=False)
     return point_df
 
+
 ### MIP Settings
 def _check_solver_cpx():
     """Return True if IBM CPLEX is installed and importable."""
