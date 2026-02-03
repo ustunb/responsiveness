@@ -108,5 +108,31 @@ def test_database_persistence(test_case, tmpdir):
     assert np.all(db2.keys() == prev_keys)
 
 
+def test_database_read_only_mode(test_case, tmpdir):
+    db_path = pathlib.Path(tmpdir) / "test_db"
+
+    X = test_case["X"].iloc[:3]
+    A = test_case["A"]
+
+    db1 = ReachableSetDatabase(A, path=db_path)
+    db1.generate(X)
+
+    db2 = ReachableSetDatabase(A, path=db_path, read_only=True)
+    assert db2.read_only is True
+
+    reachable_set = db2[X.iloc[0]]
+    assert pytest.approx(reachable_set[0]) == X.iloc[0].values
+
+    with pytest.raises(RuntimeError, match="read-only"):
+        db2.generate(X)
+
+
+def test_database_read_only_missing_file_raises(test_case, tmpdir):
+    db_path = pathlib.Path(tmpdir) / "missing_db.h5"
+
+    with pytest.raises(FileNotFoundError, match="Database file not found"):
+        ReachableSetDatabase(test_case["A"], path=db_path, read_only=True)
+
+
 if __name__ == "__main__":
     pytest.main()
