@@ -447,6 +447,25 @@ def test_sampling_accuracy(solver):
 
 
 @pytest.mark.parametrize("solver", SUPPORTED_SOLVERS)
+def test_empty_partition_all_immutable(solver):
+    """Test sampling when all features are immutable (empty actionable partition)."""
+    X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
+    A = ActionSet(X, names=["x1", "x2"])
+    A.actionable = False  # Make all features immutable
+
+    assert A.actionable_partition == []  # Verify empty partition
+
+    x = np.array([0, 1])
+    S = ReachableSetSampler(A, x, solver=solver)
+    samples = S.sample(10)
+
+    # All samples should be identical to x (nothing can change)
+    assert samples.shape == (10, 2)
+    for sample in samples:
+        assert np.array_equal(sample, x)
+
+
+@pytest.mark.parametrize("solver", SUPPORTED_SOLVERS)
 def test_1d_discrete(solver):
     X = np.array([[0, 1], [1, 1]])
     A = ActionSet(X, names=["x1"])

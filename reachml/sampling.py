@@ -77,9 +77,14 @@ class ReachableSetSampler:
 
     def sample(self, n):
         """Sample `n` full points by stitching per-partition samples."""
+        Xs = np.repeat(self.x.reshape(1, -1), n, axis=0)
+
+        # Handle empty partition (no actionable features)
+        if not self.partition:
+            return Xs
+
         part_samples = [s.sample(n) for s in self._partition_samplers.values()]
         part_idx = reduce(lambda x, y: x + y, self.partition)
-        Xs = np.repeat(self.x.reshape(1, -1), n, axis=0)
         Xs[:, part_idx] = np.hstack(part_samples)  # update the sampled part
 
         # do we want to return or store the samples in the object?
