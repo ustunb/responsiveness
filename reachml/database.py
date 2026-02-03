@@ -7,16 +7,19 @@ retrieves reachable sets keyed by a stable hash of the rounded feature vector.
 import hashlib
 import tempfile
 import time
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from copy import deepcopy
 from pathlib import Path
 from typing import Union
 
+import cloudpickle
 import h5py
 import numpy as np
 import pandas as pd
 from tqdm.auto import tqdm
 
 from .action_set import ActionSet
+from .parallel import _parallel_generate_sibling_group
 from .reachable_set import EnumeratedReachableSet, ReachableSet, SampledReachableSet
 
 
@@ -166,19 +169,17 @@ class ReachableSetDatabase:
         db[key].attrs[ReachableSetDatabase._STATS_ATTR_NAME] = np.array(list(stats.values()))
         return stats
 
-    def generate(self, X: Union[np.ndarray, pd.DataFrame], overwrite: bool = False, **kwargs):
-        """Generate reachable sets for each row in `X` and persist them.
+    def _store_reachable_set_data(self, db, key, x, X_matrix, metadata_values, stats):
+        """Store a reachable set from precomputed data and return stats."""
+        if key in db:  # delete existing entry (avoid error)
+            del db[key]
+        db.create_dataset(key, data=X_matrix)
+        db[key].attrs[ReachableSetDatabase._X_ATTR_NAME] = x
+        db[key].attrs[ReachableSetDatabase._METADATA_ATTR_NAME] = metadata_values
+        db[key].attrs[ReachableSetDatabase._STATS_ATTR_NAME] = np.array(list(stats.values()))
+        return stats
 
-        Args:
-            X: Feature matrix (`np.ndarray` or `pd.DataFrame`).
-            overwrite: If True, overwrite any existing entries for keys in `X`.
-            **kwargs: Passed to `ReachableSet` constructors and `.generate()`; for
-                sampling, includes `resp_thresh`, `n`, `seed`, and `solver`.
-
-        Returns:
-            `pd.DataFrame` with summary statistics (time, n_points, complete).
-        """
-        # Note: duplicates per unique mutable pattern are handled efficiently.
+    def _prepare_generation_inputs(self, X: Union[np.ndarray, pd.DataFrame], **kwargs):
         if isinstance(X, pd.DataFrame):
             X = X.values
         assert X.ndim == 2 and X.shape[0] > 0 and X.shape[1] == len(self.action_set), (
@@ -202,6 +203,37 @@ class ReachableSetDatabase:
             seed_seqs = init_seed_seq.spawn(U.shape[0])
         else:
             seed_seqs = [None] * U.shape[0]
+
+        return U, siblings, immutable, seed_seqs
+
+    def generate(
+        self,
+        X: Union[np.ndarray, pd.DataFrame],
+        overwrite: bool = False,
+        n_workers: int | None = None,
+        **kwargs,
+    ):
+        """Generate reachable sets for each row in `X` and persist them.
+
+        Args:
+            X: Feature matrix (`np.ndarray` or `pd.DataFrame`).
+            overwrite: If True, overwrite any existing entries for keys in `X`.
+            n_workers: Number of worker processes to use for parallel generation.
+            **kwargs: Passed to `ReachableSet` constructors and `.generate()`; for
+                sampling, includes `resp_thresh`, `n`, `seed`, and `solver`.
+
+        Returns:
+            `pd.DataFrame` with summary statistics (time, n_points, complete).
+        """
+        # Note: duplicates per unique mutable pattern are handled efficiently.
+        if n_workers is None or n_workers <= 1:
+            return self._generate_sequential(X, overwrite=overwrite, **kwargs)
+        return self._generate_parallel(X, overwrite=overwrite, n_workers=n_workers, **kwargs)
+
+    def _generate_sequential(
+        self, X: Union[np.ndarray, pd.DataFrame], overwrite: bool = False, **kwargs
+    ):
+        U, siblings, immutable, seed_seqs = self._prepare_generation_inputs(X, **kwargs)
 
         out = []
         with h5py.File(self.path, "a") as db:
@@ -237,6 +269,69 @@ class ReachableSetDatabase:
                 out += [self._store_reachable_set(db, *entry) for entry in new_entries]
 
         # update summary statistics
+        out = pd.DataFrame(out) if out else pd.DataFrame(columns=self._STATS_KEYS)
+        return out
+
+    def _generate_parallel(
+        self,
+        X: Union[np.ndarray, pd.DataFrame],
+        overwrite: bool = False,
+        n_workers: int | None = None,
+        **kwargs,
+    ):
+        U, siblings, immutable, seed_seqs = self._prepare_generation_inputs(X, **kwargs)
+        action_set_bytes = cloudpickle.dumps(self.action_set)
+
+        base_kwargs = dict(kwargs)
+        base_kwargs.pop("seed", None)
+
+        work_items = []
+        with h5py.File(self.path, "r") as db:
+            for _unique_mutable_idx, sib_idxs in siblings.items():
+                keys = [self.array_to_key(U[i]) for i in sib_idxs]
+                if not overwrite and all(key in db for key in keys):
+                    continue
+                work_items.append(
+                    (
+                        keys,
+                        sib_idxs,
+                        U[sib_idxs],
+                        [seed_seqs[i] for i in sib_idxs],
+                    )
+                )
+
+        if not work_items:
+            return pd.DataFrame(columns=self._STATS_KEYS)
+
+        results = []
+        with ProcessPoolExecutor(max_workers=n_workers) as executor:
+            futures = [
+                executor.submit(
+                    _parallel_generate_sibling_group,
+                    action_set_bytes,
+                    keys,
+                    sib_idxs,
+                    U_subset,
+                    seed_subset,
+                    immutable,
+                    self._method,
+                    base_kwargs,
+                )
+                for keys, sib_idxs, U_subset, seed_subset in work_items
+            ]
+
+            for future in tqdm(as_completed(futures), total=len(futures)):
+                results.extend(future.result())
+
+        out = []
+        with h5py.File(self.path, "a") as db:
+            for key, x, X_matrix, metadata_values, stats in results:
+                if not overwrite and key in db:
+                    continue
+                out.append(
+                    self._store_reachable_set_data(db, key, x, X_matrix, metadata_values, stats)
+                )
+
         out = pd.DataFrame(out) if out else pd.DataFrame(columns=self._STATS_KEYS)
         return out
 
