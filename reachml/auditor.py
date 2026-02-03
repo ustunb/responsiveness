@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import beta, binom
 from sklearn.pipeline import Pipeline
-from tqdm.auto import tqdm
+from tqdm.auto import tqdm as tqdm_auto
 
 from .database import EnumeratedReachableSet, ReachableSetDatabase
 
@@ -62,7 +62,9 @@ class ResponsivenessAuditor:
         """Debug summary string for the auditor."""
         return f"<ResponsivenessAuditor<database={self.db}, complete={self.complete}>"
 
-    def __call__(self, X, y, target=1, population="all", save=True, overwrite=True, **kwargs):
+    def __call__(
+        self, X, y, target=1, population="all", save=True, overwrite=True, tqdm=True, **kwargs
+    ):
         """Run an audit of responsiveness over the dataset `X`.
 
         Args:
@@ -72,6 +74,7 @@ class ResponsivenessAuditor:
             population: Subset to audit ("all", "target", or others).
             save: If True, store results on this instance.
             overwrite: If True, overwrite previous results.
+            tqdm: If True, show progress bar during audit.
             **kwargs: Optional parameters (e.g., feature subset).
 
         Returns:
@@ -104,7 +107,7 @@ class ResponsivenessAuditor:
         # solve recourse problem
         n_iterations = len(H) if include_target else len(audit_idx)
         output = []
-        pbar = tqdm(total=n_iterations)  ## stop tqdm from playing badly in ipython notebook.
+        pbar = tqdm_auto(total=n_iterations, disable=not tqdm)
 
         for idx in audit_idx:
             start_time = time.time()
