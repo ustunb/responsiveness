@@ -96,6 +96,6 @@ jobs:
         with:
           python-version: "3.12"
       - name: Build package
-        run: uvx build
+        run: uv build
       - name: Check package metadata
         run: uvx twine check dist/*
