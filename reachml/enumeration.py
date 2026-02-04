@@ -9,6 +9,7 @@ import numpy as np
 
 from .action_set import ActionSet
 from .mip import EnumeratorMIP
+from .partition import GeneratorConfig
 from .utils import DEFAULT_SOLVER
 
 
@@ -44,23 +45,9 @@ class ReachableSetEnumerator:
         self.settings = dict(ReachableSetEnumerator.SETTINGS) | kwargs
         self.print_flag = print_flag
 
-        # setup enumerators
-        self._enumerators = {}
-        for i, part in enumerate(self.partition):
-            if len(part) == 1 and action_set[part[0]].discrete:
-                self._enumerators[i] = ReachableGrid(
-                    action_set=self.action_set[part],
-                    x=self.x[part],
-                    **self.settings,
-                )
-            else:
-                self._enumerators[i] = ReachableSetEnumerationMIP(
-                    action_set=self.action_set[part],
-                    x=self.x[part],
-                    print_flag=self.print_flag,
-                    solver=self.solver,
-                    **self.settings,
-                )
+        # setup partitions
+        config = GeneratorConfig(solver=self.solver)
+        self._partitions = self._action_set.get_partitions(self.x, rng=None, config=config)
 
     @property
     def action_set(self):
@@ -80,7 +67,7 @@ class ReachableSetEnumerator:
     @property
     def complete(self):
         """Whether all partitions have been fully enumerated."""
-        return all(e.complete for e in self._enumerators.values())
+        return all(p.complete for p in self._partitions)
 
     @property
     def reachable_points(self):
@@ -91,8 +78,8 @@ class ReachableSetEnumerator:
     def feasible_actions(self):
         """All feasible action vectors across actionable partitions."""
         actions_per_part = [
-            self.convert_to_full_action(e.feasible_actions, part)
-            for e, part in zip(self._enumerators.values(), self.partition, strict=False)
+            self.convert_to_full_action(p.feasible_actions, part)
+            for p, part in zip(self._partitions, self.partition, strict=False)
         ]
         if len(actions_per_part) == 0:
             assert np.logical_not(self.action_set.actionable).all()
@@ -114,8 +101,14 @@ class ReachableSetEnumerator:
             node_limit: Solver node limit (int).
             **kwargs: Unused, kept for interface compatibility.
         """
-        for e in self._enumerators.values():
-            e.enumerate(max_points=max_points, time_limit=time_limit, node_limit=node_limit)
+        for p in self._partitions:
+            p.enumerate(
+                max_points=max_points,
+                time_limit=time_limit,
+                node_limit=node_limit,
+                print_flag=self.print_flag,
+                **self.settings,
+            )
 
     def convert_to_full_action(self, actions, part):
         """Expand partition actions into full-length action vectors."""
@@ -127,27 +120,6 @@ class ReachableSetEnumerator:
     def __repr__(self):
         """Return a debug representation of the enumerator."""
         return f"ReachableSetEnumerator<x = {str(self.x)}>"
-
-
-class ReachableGrid:
-    """Grid enumerator for a single discrete actionable feature."""
-
-    def __init__(self, action_set, x, **kwargs):
-        """Initialize a single-feature grid enumerator.
-
-        Args:
-            action_set: `ActionSet` with length 1.
-            x: Feature value.
-            **kwargs: Unused, kept for interface compatibility.
-        """
-        assert len(action_set) == 1 and action_set.actionable[0]
-        self.feasible_actions = action_set[0].reachable_grid(x, return_actions=True).reshape(-1, 1)
-        self.complete = True
-        self.action_set = action_set
-
-    def enumerate(self, **kwargs):
-        """No-op for grid enumerator (already complete)."""
-        pass
 
 
 class ReachableSetEnumerationMIP:

@@ -89,3 +89,7 @@ class ThermometerEncoding(ReachabilityConstraint):
                 f"and {self.names[-1]} is the highest-level-dummy."
             )
         return s
+
+    def prefer_enumeration_for_sampling(self) -> bool:
+        """Thermometer encoding has a small reachable space; enumerate for sampling."""
+        return True
