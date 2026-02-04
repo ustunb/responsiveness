@@ -9,8 +9,6 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
-from scipy.stats import beta, binom
-from sklearn.pipeline import Pipeline
 from tqdm.auto import tqdm as tqdm_auto
 
 from .database import EnumeratedReachableSet, ReachableSetDatabase
@@ -80,6 +78,8 @@ class ResponsivenessAuditor:
         Returns:
             DataFrame with audit outcomes per input row.
         """
+        from sklearn.pipeline import Pipeline
+
         if isinstance(X, pd.DataFrame):
             raw_index = X.index.tolist()
             X = X.values
@@ -185,6 +185,8 @@ class ResponsivenessAuditor:
         Returns:
             Dict with epsilon threshold, minimum samples, p-value, and Clopper–Pearson upper bound.
         """
+        from scipy.stats import beta, binom
+
         out = {
             "eps": R.resp_thresh,
             "min_samp": np.ceil(np.log(alpha) / np.log(1 - R.resp_thresh)),
