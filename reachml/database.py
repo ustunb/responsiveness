@@ -8,7 +8,6 @@ import hashlib
 import tempfile
 import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
-from copy import deepcopy
 from pathlib import Path
 from typing import Union
 
@@ -364,7 +363,7 @@ class ReachableSetDatabase:
         """Construct a sibling reachable set for `x` from an existing one.
 
         For "enumerate", copy and align immutable feature values in-place.
-        For "sample", reseed, reset, and resample.
+        For "sample", create fresh instance and resample.
 
         Args:
             x: Feature vector for the sibling point.
@@ -372,18 +371,14 @@ class ReachableSetDatabase:
             immutable: List of immutable feature indices.
             **kwargs: Passed through to reachable-set constructors/generation.
         """
-        # Perhaps move values = to enumerate
-        R = self.RS(self.action_set, x, values=sib_rs.X, **kwargs)
-        # R.add(sib_rs.X, actions=False) # copy the reachable set
-
         if self.method == "enumerate":
+            R = self.RS(self.action_set, x, values=sib_rs.X, **kwargs)
             R.X[:, immutable] = x[immutable]
             R._complete = True
         else:
-            R = deepcopy(sib_rs)
-            R.seed = kwargs.get("seed", R.seed)
-            R.x = x
-            R.reset()
+            # Create fresh instance instead of deepcopy to avoid copying
+            # CPLEX/SCIP MIP objects (SwigPyObject) which can't be copied
+            R = self.RS(self.action_set, x, **kwargs)
             R.generate(**kwargs)
 
         return R
