@@ -13,11 +13,21 @@ class ReachableSetSampler:
 
     _RND_PRECISION = 4
 
-    def __init__(self, action_set, x, solver=DEFAULT_SOLVER, **kwargs):
-        """Initialize the sampler with an action set and point `x`."""
+    def __init__(self, action_set, x, solver=DEFAULT_SOLVER, min_binary=None, **kwargs):
+        """Initialize the sampler with an action set and point `x`.
+
+        Args:
+            action_set: Action set describing feasible actions.
+            x: Current feature vector.
+            solver: MIP solver backend ("scip" or "cplex").
+            min_binary: If set, partitions with at least this many binary
+                features enumerate feasible points first, then sample from them.
+            **kwargs: Optional `seed` for reproducible sampling.
+        """
         self._action_set = action_set
         self._x = x
         self._solver = solver
+        self._min_binary = min_binary
 
         # random seed
         default_seed = abs(
@@ -28,7 +38,11 @@ class ReachableSetSampler:
         self._master_rng = rng
         self._seed = seed
 
-        self._config = GeneratorConfig(solver=self._solver, seed=seed)
+        self._config = GeneratorConfig(
+            solver=self._solver,
+            seed=seed,
+            min_binary=self._min_binary,
+        )
         self._partitions = self._action_set.get_partitions(self.x, rng, config=self._config)
 
     @property

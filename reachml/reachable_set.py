@@ -311,9 +311,22 @@ class SampledReachableSet(ReachableSet):
         values: Optional[np.ndarray] = None,
         initialize_from_actions: bool = False,
         resp_thresh=THRESH,
+        min_binary: Optional[int] = None,
         **kwargs,
     ):
-        """Initialize a sampled reachable set for `x` over `action_set`."""
+        """Initialize a sampled reachable set for `x` over `action_set`.
+
+        Args:
+            action_set: Action set describing feasible actions.
+            x: Source point.
+            complete: If True, the set contains all reachable points.
+            values: Optional initial feature vectors or actions.
+            initialize_from_actions: If True, `values` are actions.
+            resp_thresh: Responsiveness threshold for sampling termination.
+            min_binary: If set, partitions with at least this many binary
+                features enumerate feasible points first, then sample from them.
+            **kwargs: Additional metadata such as `time` and `seed`.
+        """
         super().__init__(
             action_set=action_set,
             x=x,
@@ -324,6 +337,7 @@ class SampledReachableSet(ReachableSet):
         )
 
         self._resp_thresh = resp_thresh
+        self._min_binary = min_binary
 
         self._X = None
 
@@ -348,7 +362,12 @@ class SampledReachableSet(ReachableSet):
 
     def _initialize_generator(self):
         """Initialize generator."""
-        return ReachableSetSampler(action_set=self.action_set, x=self.x, seed=self.seed)
+        return ReachableSetSampler(
+            action_set=self.action_set,
+            x=self.x,
+            seed=self.seed,
+            min_binary=self._min_binary,
+        )
 
     def generate(self, **kwargs):
         """Generate reachable set using sampling.

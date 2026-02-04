@@ -127,7 +127,7 @@ class ActionSet:
     @property
     def n_binary(self) -> int:
         """Count of binary features."""
-        return sum(1 for e in self if e.variable_type == "binary" or e.variable_type is bool)
+        return sum((e.variable_type == "binary") or (e.variable_type is bool) for e in self)
 
     def get_feature_indices(self, names):
         """Return indices for feature name(s).
