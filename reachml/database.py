@@ -48,7 +48,9 @@ class ReachableSetDatabase:
             action_set: Action set for generating reachable sets.
             path: Optional path to an HDF5 file; creates a temp file if None.
             read_only: If True, skip write-access check and allow parallel reads.
-            **kwargs: Optional `precision` (int) and generation `method`.
+            **kwargs: Optional `precision` (int), generation `method` ("enumerate"
+                or "sample"), and `min_binary` (int) threshold—partitions with
+                at least this many binary features enumerate first, then sample.
         """
         assert isinstance(action_set, ActionSet)
         self._action_set = action_set
@@ -76,6 +78,8 @@ class ReachableSetDatabase:
         # TODO: When reading a db, check if the precision matches.
         precision = kwargs.get("precision", ReachableSetDatabase._PRECISION)
         self._precision = int(precision)
+
+        self._min_binary = kwargs.get("min_binary", None)
 
         # determine generation method
         default = "enumerate" if action_set.can_enumerate else "sample"  # default from action_set
@@ -160,6 +164,8 @@ class ReachableSetDatabase:
                     )
                 )
                 args.update({"time": db[key].attrs[self._STATS_ATTR_NAME][-1]})
+                if self._method == "sample" and self._min_binary is not None:
+                    args.setdefault("min_binary", self._min_binary)
                 out = self.RS(self._action_set, x=x, values=db[key], **args)
         except KeyError as err:
             raise KeyError(
@@ -242,6 +248,8 @@ class ReachableSetDatabase:
         """
         if self._read_only:
             raise RuntimeError("Cannot generate reachable sets in read-only mode")
+        if self._method == "sample" and "min_binary" not in kwargs and self._min_binary is not None:
+            kwargs["min_binary"] = self._min_binary
         # Note: duplicates per unique mutable pattern are handled efficiently.
         if n_workers is None or n_workers <= 1:
             return self._generate_sequential(X, overwrite=overwrite, **kwargs)

@@ -14,6 +14,12 @@ from reachml.partition import (
 from reachml.utils import SUPPORTED_SOLVERS
 
 
+def _make_binary_action_set(n_features):
+    X = np.vstack([np.zeros(n_features), np.ones(n_features)])
+    names = [f"x{idx}" for idx in range(n_features)]
+    return ActionSet(X, names=names)
+
+
 def test_single_discrete_partition_enumerate_and_sample():
     X = np.array([[0], [1]])
     A = ActionSet(X, names=["x0"])
@@ -119,3 +125,48 @@ def test_mixed_partition_sample(solver):
     assert set(np.unique(samples[:, 0]).tolist()).issubset({0, 1})
     assert np.all(samples[:, 1] >= A[1].lb)
     assert np.all(samples[:, 1] <= A[1].ub)
+
+
+def test_joint_discrete_partition_enumerates_with_min_binary():
+    A = _make_binary_action_set(4)
+    x = np.zeros(4)
+    rng = np.random.default_rng(5)
+
+    part = Partition.from_action_set(
+        A,
+        x=x,
+        rng=rng,
+        config=GeneratorConfig(min_binary=4),
+    )
+    assert isinstance(part, JointDiscretePartition)
+    assert part._should_enumerate()
+
+
+def test_joint_discrete_partition_rejects_with_low_binary():
+    A = _make_binary_action_set(3)
+    x = np.zeros(3)
+    rng = np.random.default_rng(6)
+
+    part = Partition.from_action_set(
+        A,
+        x=x,
+        rng=rng,
+        config=GeneratorConfig(min_binary=4),
+    )
+    assert isinstance(part, JointDiscretePartition)
+    assert not part._should_enumerate()
+
+
+def test_joint_discrete_partition_min_binary_none_disables():
+    A = _make_binary_action_set(4)
+    x = np.zeros(4)
+    rng = np.random.default_rng(7)
+
+    part = Partition.from_action_set(
+        A,
+        x=x,
+        rng=rng,
+        config=GeneratorConfig(min_binary=None),
+    )
+    assert isinstance(part, JointDiscretePartition)
+    assert not part._should_enumerate()

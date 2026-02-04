@@ -14,7 +14,14 @@ from .utils import DEFAULT_SOLVER
 
 @dataclass
 class GeneratorConfig:
-    """Configuration options for sampling over partitions."""
+    """Configuration options for enumeration and sampling over partitions.
+
+    Attributes:
+        solver: MIP solver backend ("scip" or "cplex").
+        seed: Random seed for reproducible sampling.
+        min_binary: If set, partitions with at least this many binary features
+            will enumerate feasible points first, then sample uniformly from them.
+    """
 
     solver: str = DEFAULT_SOLVER
     seed: Optional[int] = None
@@ -211,10 +218,17 @@ class JointDiscretePartition(Partition):
         )
 
     def _should_enumerate(self) -> bool:
-        return any(
+        if any(
             constraint.prefer_enumeration_for_sampling()
             for constraint in self.action_set.constraints
-        )
+        ):
+            return True
+
+        min_binary = self.config.min_binary
+        if min_binary is not None and self.action_set.n_binary >= min_binary:
+            return True
+
+        return False
 
     def enumerate(self, max_points=float("inf"), time_limit=None, node_limit=None, **kwargs):
         """Enumerate feasible actions using MIP solver."""
