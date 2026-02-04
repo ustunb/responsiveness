@@ -124,6 +124,11 @@ class ActionSet:
         """Set of actionable feature indices."""
         return {self._indices[e.name] for e in self if e.actionable}
 
+    @property
+    def n_binary(self) -> int:
+        """Count of binary features."""
+        return sum(1 for e in self if e.variable_type == "binary" or e.variable_type is bool)
+
     def get_feature_indices(self, names):
         """Return indices for feature name(s).
 
@@ -240,6 +245,31 @@ class ActionSet:
     def actionable_partition(self):
         """Partition subsets that include at least one actionable feature."""
         return [part for part in self.partition if any(self[part].actionable)]
+
+    def get_partitions(self, x, rng, config=None):
+        """Construct partitions for the current action set and point `x`."""
+        from .partition import GeneratorConfig, Partition
+
+        if config is None:
+            config = GeneratorConfig()
+
+        assert isinstance(x, (list, np.ndarray))
+        x = np.array(x).flatten()
+        assert len(x) == len(self)
+
+        parts = self.actionable_partition
+        if len(parts) == 0:
+            return []
+
+        if rng is None:
+            rngs = [None for _ in parts]
+        else:
+            rngs = [rng.spawn(1)[0] for _ in parts]
+
+        return [
+            Partition.from_action_set(self[part], x=x[part], rng=part_rng, config=config)
+            for part, part_rng in zip(parts, rngs, strict=False)
+        ]
 
     @property
     def separable(self):

@@ -135,3 +135,7 @@ class ActionabilityConstraint(ABC):
     def add_to_scip(self, scip, indices, x):
         """Add constraint to PySCIPOpt model for enumeration."""
         raise NotImplementedError()
+
+    def prefer_enumeration_for_sampling(self) -> bool:
+        """Return True if sampling should prefer enumeration for this constraint."""
+        return False
