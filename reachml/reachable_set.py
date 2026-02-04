@@ -231,8 +231,8 @@ class EnumeratedReachableSet(ReachableSet):
         if self.discrete:
             self.has_feature_vector = lambda x: np.all(self._X == x, axis=1).any()
         else:
-            self.has_feature_vector = (
-                lambda x: np.isclose(self._X, x, atol=self._TOLERANCE).all(axis=1).any()
+            self.has_feature_vector = lambda x: (
+                np.isclose(self._X, x, atol=self._TOLERANCE).all(axis=1).any()
             )
 
         if values is not None:

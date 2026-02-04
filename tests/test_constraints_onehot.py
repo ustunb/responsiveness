@@ -167,8 +167,8 @@ def test_enumeration_with_onehot_constraints_immutable(limit_type, limit_value, 
     A.constraints.add(constraint=constraint)
     A[constraint.names].actionable = True
     A[immutable_idx].actionable = False
-    is_feasible = lambda z: constraint.check_feasibility(z) and np.all(
-        z[immutable_idx] == x[immutable_idx]
+    is_feasible = lambda z: (
+        constraint.check_feasibility(z) and np.all(z[immutable_idx] == x[immutable_idx])
     )
     for _idx, x in enumerate(X.values):
         if is_feasible(x):
