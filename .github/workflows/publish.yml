@@ -101,9 +101,8 @@ jobs:
             echo "PUBLIC_REPO_PAT secret is not configured" >&2
             exit 1
           fi
-          git remote add public "https://${PUBLIC_REPO_PAT}@github.com/${PUBLIC_REPO}.git"
-          git push public HEAD:main
-          git push public "v${{ steps.version.outputs.value }}"
+          python build/make_public_repo.py \
+            --remote-url "https://${PUBLIC_REPO_PAT}@github.com/${PUBLIC_REPO}.git"
 
       - name: Create GitHub release
         env:
