@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import time
-from copy import deepcopy
 from typing import Sequence
 
 import cloudpickle
@@ -67,10 +66,9 @@ def _parallel_generate_sibling_group(
             sib_rs.X[:, immutable] = x[immutable]
             sib_rs._complete = True
         else:
-            sib_rs = deepcopy(base_rs)
-            sib_rs.seed = local_kwargs.get("seed", sib_rs.seed)
-            sib_rs.x = x
-            sib_rs.reset()
+            # Create fresh instance instead of deepcopy to avoid pickling
+            # CPLEX/SCIP MIP objects (SwigPyObject) which can't be copied
+            sib_rs = reachable_set_cls(action_set, x, **local_kwargs)
             sib_rs.generate(**local_kwargs)
 
         final_time = time.time() - start_time
