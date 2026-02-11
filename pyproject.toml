@@ -1,0 +1,94 @@
+[project]
+name = "responsiveness"
+description = "Responsiveness verification for machine learning"
+authors = [
+  { name = "Berk Ustun", email = "berk@ucsd.edu" },
+  { name = "Bogdan Kulynych",   email = "bogdan@kulyny.ch" },
+  { name = "Avni Kothrai",   email = "akothari@ucsd.edu" },
+  { name = "Harry Cheon", email = "scheon@ucsd.edu" },
+  { name = "Meredith Stewart", email = "mds010@ucds.edu" }
+]
+license = "MIT"
+readme = "README.md"
+requires-python = ">=3.10, <3.13"
+
+dependencies = [
+  "cloudpickle>=3.0.0",
+  "numpy>=2.1.3",
+  "pandas>=2.2.3",
+  "tqdm>=4.67.1",
+  "prettytable>=3.14.0",
+  "h5py>=3.12.1",
+  "matplotlib>=3.10.0",
+  "pyscipopt>=5.6.0",
+  "scipy>=1.12.0",
+  "scikit-learn>=1.5.0",
+]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Intended Audience :: Information Technology",
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Development Status :: 3 - Alpha",
+  "License :: OSI Approved :: MIT License",
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+cplex = [ "docplex", "cplex>=22.1.2" ]
+
+[dependency-groups]
+dev = [ "pytest>=8.0" ]
+cplex = [ "responsiveness[cplex]" ]
+ext = ["imbalanced-learn>=0.13.0", "dill>=0.3.9", "xgboost>=2.1.4"]
+
+[tool.uv]
+default-groups = ["cplex"]
+
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "responsiveness/_version.py"   # creates a file with __version__
+
+[tool.hatch.build.targets.sdist]
+exclude = ["responsiveness/ext"]
+
+[tool.hatch.build.targets.wheel]
+exclude = ["responsiveness/ext"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+exclude = ["research", "scripts"]
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "F",      # pyflakes
+    "I",      # import sorting
+    "B",      # flake8-bugbear
+    "D",      # pydocstyle
+]
+ignore = [
+    "D104",  # Missing docstring in public package
+    "E731",  # Leave assigned lambdas for now
+]
+per-file-ignores = { "tests/**/*.py" = ["D"] }
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+skip-magic-trailing-comma = false
