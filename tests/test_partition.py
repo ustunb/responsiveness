@@ -1,8 +1,8 @@
 import numpy as np
 import pytest
 
-from reachml.action_set import ActionSet
-from reachml.partition import (
+from responsiveness.action_set import ActionSet
+from responsiveness.partition import (
     GeneratorConfig,
     JointContinuousPartition,
     JointDiscretePartition,
@@ -11,7 +11,7 @@ from reachml.partition import (
     SingleContinuousPartition,
     SingleDiscretePartition,
 )
-from reachml.utils import SUPPORTED_SOLVERS
+from responsiveness.utils import SUPPORTED_SOLVERS
 
 
 def _make_binary_action_set(n_features):

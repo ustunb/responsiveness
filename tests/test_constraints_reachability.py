@@ -6,11 +6,11 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from reachml.action_set import ActionSet
-from reachml.constraints.reachability import ReachabilityConstraint
-from reachml.paths import tests_dir
-from reachml.reachable_set import EnumeratedReachableSet
-from reachml.utils import SUPPORTED_SOLVERS
+from responsiveness.action_set import ActionSet
+from responsiveness.constraints.reachability import ReachabilityConstraint
+from responsiveness.paths import tests_dir
+from responsiveness.reachable_set import EnumeratedReachableSet
+from responsiveness.utils import SUPPORTED_SOLVERS
 
 
 @pytest.fixture(params=["credit_onehot", "credit_onehot_all_immutable"])

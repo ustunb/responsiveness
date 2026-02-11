@@ -1,6 +1,6 @@
 [project]
-name = "reachml"
-description = "Recourse verification with reachable sets"
+name = "responsiveness"
+description = "Responsiveness verification for machine learning"
 authors = [
   { name = "Berk Ustun", email = "berk@ucsd.edu" },
   { name = "Bogdan Kulynych",   email = "bogdan@kulyny.ch" },
@@ -43,7 +43,7 @@ cplex = [ "docplex", "cplex>=22.1.2" ]
 
 [dependency-groups]
 dev = [ "pytest>=8.0" ]
-cplex = [ "reachml[cplex]" ]
+cplex = [ "responsiveness[cplex]" ]
 
 [tool.uv]
 default-groups = ["cplex"]
@@ -56,7 +56,7 @@ build-backend = "hatchling.build"
 source = "vcs"
 
 [tool.hatch.build.hooks.vcs]
-version-file = "reachml/_version.py"   # creates a file with __version__
+version-file = "responsiveness/_version.py"   # creates a file with __version__
 
 [tool.ruff]
 target-version = "py310"

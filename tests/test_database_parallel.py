@@ -4,7 +4,7 @@ import h5py
 import numpy as np
 import pytest
 
-from reachml.database import ReachableSetDatabase
+from responsiveness.database import ReachableSetDatabase
 
 
 def _read_db(path):

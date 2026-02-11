@@ -15,10 +15,10 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from reachml import ActionSet
-from reachml.constraints.directional_linkage import DirectionalLinkage
-from reachml.reachable_set import EnumeratedReachableSet
-from reachml.utils import SUPPORTED_SOLVERS
+from responsiveness import ActionSet
+from responsiveness.constraints.directional_linkage import DirectionalLinkage
+from responsiveness.reachable_set import EnumeratedReachableSet
+from responsiveness.utils import SUPPORTED_SOLVERS
 
 sortrows = lambda v: v[np.lexsort(v.T, axis=0), :]
 

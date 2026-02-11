@@ -6,10 +6,10 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from reachml.action_set import ActionSet
-from reachml.constraints.ordinal import OrdinalEncoding
-from reachml.reachable_set import EnumeratedReachableSet
-from reachml.utils import SUPPORTED_SOLVERS
+from responsiveness.action_set import ActionSet
+from responsiveness.constraints.ordinal import OrdinalEncoding
+from responsiveness.reachable_set import EnumeratedReachableSet
+from responsiveness.utils import SUPPORTED_SOLVERS
 
 sortrows = lambda v: v[np.lexsort(v.T, axis=0), :]
 

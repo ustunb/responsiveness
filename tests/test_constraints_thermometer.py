@@ -10,10 +10,10 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from reachml.action_set import ActionSet
-from reachml.constraints.thermometer import ThermometerEncoding
-from reachml.reachable_set import EnumeratedReachableSet
-from reachml.utils import SUPPORTED_SOLVERS
+from responsiveness.action_set import ActionSet
+from responsiveness.constraints.thermometer import ThermometerEncoding
+from responsiveness.reachable_set import EnumeratedReachableSet
+from responsiveness.utils import SUPPORTED_SOLVERS
 
 sortrows = lambda v: v[np.lexsort(v.T, axis=0), :]
 

@@ -4,9 +4,9 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from reachml.action_set import ActionSet
-from reachml.database import ReachableSetDatabase
-from reachml.paths import tests_dir
+from responsiveness.action_set import ActionSet
+from responsiveness.database import ReachableSetDatabase
+from responsiveness.paths import tests_dir
 
 
 @pytest.fixture()

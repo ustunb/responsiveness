@@ -2,7 +2,7 @@
 
 import pandas as pd
 
-GH_DATA_URL = "https://raw.githubusercontent.com/ustunb/reachml/main/data/"
+GH_DATA_URL = "https://raw.githubusercontent.com/ustunb/responsiveness/main/data/"
 
 
 def givemecredit_cts_slim(n=100, label=None):

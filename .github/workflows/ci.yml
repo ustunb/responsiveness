@@ -7,7 +7,7 @@ on:
     # Run CI only when code, deps, or workflow change.
     paths:
       - ".github/workflows/ci.yml"
-      - "reachml/**"
+      - "responsiveness/**"
       - "tests/**"
       - "pyproject.toml"
       - "uv.lock"
@@ -15,7 +15,7 @@ on:
     # Run CI only when code, deps, or workflow change.
     paths:
       - ".github/workflows/ci.yml"
-      - "reachml/**"
+      - "responsiveness/**"
       - "tests/**"
       - "pyproject.toml"
       - "uv.lock"
@@ -41,9 +41,9 @@ jobs:
         with:
           python-version: "3.12"
       - name: Ruff lint
-        run: uvx ruff check reachml tests
+        run: uvx ruff check responsiveness tests
       - name: Ruff format check
-        run: uvx ruff format --check reachml tests
+        run: uvx ruff format --check responsiveness tests
 
   tests:
     name: tests (python 3.12)

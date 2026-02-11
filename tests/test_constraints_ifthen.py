@@ -5,10 +5,10 @@ todo
 import pandas as pd
 import pytest
 
-from reachml.action_set import ActionSet
-from reachml.constraints.ifthen import Condition, IfThenConstraint
-from reachml.enumeration import ReachableSetEnumerator
-from reachml.utils import SUPPORTED_SOLVERS
+from responsiveness.action_set import ActionSet
+from responsiveness.constraints.ifthen import Condition, IfThenConstraint
+from responsiveness.enumeration import ReachableSetEnumerator
+from responsiveness.utils import SUPPORTED_SOLVERS
 
 
 def test_initialization():

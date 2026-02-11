@@ -2,9 +2,14 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from reachml.action_set import ActionSet
-from reachml.constraints import Condition, IfThenConstraint, OneHotEncoding, ReachabilityConstraint
-from reachml.paths import tests_dir
+from responsiveness.action_set import ActionSet
+from responsiveness.constraints import (
+    Condition,
+    IfThenConstraint,
+    OneHotEncoding,
+    ReachabilityConstraint,
+)
+from responsiveness.paths import tests_dir
 
 
 @pytest.fixture(params=["credit"])

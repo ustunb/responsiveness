@@ -1,9 +1,9 @@
 import numpy as np
 import pytest
 
-from reachml.constraints.reachability import ReachabilityConstraint
-from reachml.reachable_set import EnumeratedReachableSet
-from reachml.utils import SUPPORTED_SOLVERS
+from responsiveness.constraints.reachability import ReachabilityConstraint
+from responsiveness.reachable_set import EnumeratedReachableSet
+from responsiveness.utils import SUPPORTED_SOLVERS
 
 
 @pytest.fixture(params=[True, False])

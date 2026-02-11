@@ -2,9 +2,9 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from reachml.action_set import ActionSet
-from reachml.constraints import ThermometerEncoding
-from reachml.scoring import ResponsivenessScorer
+from responsiveness.action_set import ActionSet
+from responsiveness.constraints import ThermometerEncoding
+from responsiveness.scoring import ResponsivenessScorer
 
 TEST_PARAMS = [
     "separable_discrete",

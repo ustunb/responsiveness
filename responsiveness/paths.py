@@ -11,7 +11,7 @@ from pathlib import Path
 repo_dir = Path(__file__).resolve().parent.parent
 
 # path to the Python package
-pkg_dir = repo_dir / "reachml/"
+pkg_dir = repo_dir / "responsiveness/"
 
 # directory where we store datasets
 data_dir = repo_dir / "data/"

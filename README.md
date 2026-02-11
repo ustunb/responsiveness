@@ -1,12 +1,12 @@
-# reachml
+# responsiveness
 
-[![python](https://img.shields.io/pypi/pyversions/reachml)](https://pypi.org/pypi/reachml/)
+[![python](https://img.shields.io/pypi/pyversions/responsiveness)](https://pypi.org/pypi/responsiveness/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![arXiv](https://img.shields.io/badge/arXiv-2308.12820-b31b1b.svg)](https://arxiv.org/abs/2308.12820)
 [![arXiv](https://img.shields.io/badge/arXiv-2410.22598-b31b1b.svg)](https://arxiv.org/abs/2410.22598)
-[![test](https://github.com/ustunb/reachml/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/ustunb/reachml/actions/workflows/test.yml)
+[![test](https://github.com/ustunb/responsiveness/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/ustunb/responsiveness/actions/workflows/test.yml)
 
-`reachml` is a library for recourse verification.
+`responsiveness` is a library for recourse verification.
 
 ## Background
 
@@ -16,14 +16,14 @@
 
 You can install the library as follows:
 ```
-pip install reachml
+pip install responsiveness
 ```
 
 ### CPLEX
 
-The default solver in the package is [SCIP](https://www.scipopt.org), a source-available academic software with an open-source [Python API](https://github.com/scipopt/PySCIPOpt). If you want to use [CPLEX](https://www.ibm.com/products/ilog-cplex-optimization-studio), install `reachml` with:
+The default solver in the package is [SCIP](https://www.scipopt.org), a source-available academic software with an open-source [Python API](https://github.com/scipopt/PySCIPOpt). If you want to use [CPLEX](https://www.ibm.com/products/ilog-cplex-optimization-studio), install `responsiveness` with:
 ```
-pip install reachml[cplex]
+pip install responsiveness[cplex]
 ```
 The command above will install the [CPLEX Community Edition Python API](https://pypi.org/project/cplex/). The community edition has a strict limit on the size of models (e.g., number of constraints) it can support. To avoid these limits, you can purchase CPLEX and upgrade the Python API by running (on **CPLEX v22.1.2 and above**):
 ```
@@ -41,14 +41,14 @@ The following example shows how to generate responsivneess scores using `Respons
 import numpy as np
 import xgboost
 
-import reachml
+import responsiveness
 
 # load dataset and train xgboost classifier
-X, y = reachml.datasets.givemecredit_cts_slim(label=[0, 1])
+X, y = responsiveness.datasets.givemecredit_cts_slim(label=[0, 1])
 model = xgboost.XGBClassifier().fit(X, y)
 
 # create simple action set
-A = reachml.ActionSet(X)
+A = responsiveness.ActionSet(X)
 
 # Immutable features
 A["HistoryOfDelinquency"].actionable = False
@@ -67,7 +67,7 @@ A["CreditLineUtilization"].lb = 0
 
 # Calculate responsiveness scores
 # Since some features are continuous, we set sample size: n = 100
-scorer = reachml.ResponsivenessScorer(A)
+scorer = responsiveness.ResponsivenessScorer(A)
 scores = scorer(X, model, n=100)
 
 # List of adverse outcome indices
@@ -97,7 +97,7 @@ If you use responsiveness scores in your research, we would appreciate a citatio
 }
 ```
 
-The code for the paper is available under [research/iclr2025](https://github.com/ustunb/reachml/tree/main/research/iclr2025/).
+The code for the paper is available under [research/iclr2025](https://github.com/ustunb/responsiveness/tree/main/research/iclr2025/).
 
 
 
@@ -107,8 +107,8 @@ The following example shows how to specify actionability constraints using `Acti
 
 ```python
 import pandas as pd
-from reachml import ActionSet, ReachableSet, ReachableDatabase
-from reachml.constraints import OneHotEncoding, DirectionalLinkage
+from responsiveness import ActionSet, ReachableSet, ReachableDatabase
+from responsiveness.constraints import OneHotEncoding, DirectionalLinkage
 
 # feature matrix with 3 points
 X = pd.DataFrame(
@@ -183,7 +183,7 @@ print(reachable_set) # should return the following output:
 Given a classifier `clf` with a predict method, you can test if a point has recourse as `np.any(clf.predict(reachable_set.X))`
 
 For more examples, check out [this
-script](https://github.com/ustunb/reachml/blob/main/research/iclr2024/scripts/setup_dataset_actionset_fico.py) which sets up the action set for the FICO dataset.
+script](https://github.com/ustunb/responsiveness/blob/main/research/iclr2024/scripts/setup_dataset_actionset_fico.py) which sets up the action set for the FICO dataset.
 
 ### Resources and Citation
 
@@ -200,4 +200,4 @@ If you use recourse verification in your research, we would appreciate a citatio
 }
 ```
 
-The code for the paper is available under [research/iclr2024](https://github.com/ustunb/reachml/tree/main/research/iclr2024/).
+The code for the paper is available under [research/iclr2024](https://github.com/ustunb/responsiveness/tree/main/research/iclr2024/).

@@ -647,7 +647,7 @@ wheels = [
 ]
 
 [[package]]
-name = "reachml"
+name = "responsiveness"
 source = { editable = "." }
 dependencies = [
     { name = "cloudpickle" },
@@ -673,7 +673,7 @@ cplex = [
 
 [package.dev-dependencies]
 cplex = [
-    { name = "reachml", extra = ["cplex"] },
+    { name = "responsiveness", extra = ["cplex"] },
 ]
 dev = [
     { name = "pytest" },
@@ -697,7 +697,7 @@ requires-dist = [
 provides-extras = ["cplex"]
 
 [package.metadata.requires-dev]
-cplex = [{ name = "reachml", extras = ["cplex"] }]
+cplex = [{ name = "responsiveness", extras = ["cplex"] }]
 dev = [{ name = "pytest", specifier = ">=8.0" }]
 
 [[package]]

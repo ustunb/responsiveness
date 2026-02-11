@@ -10,11 +10,11 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from reachml.action_set import ActionSet
-from reachml.constraints.switch import MutabilitySwitch
-from reachml.enumeration import ReachableSetEnumerator
-from reachml.reachable_set import EnumeratedReachableSet
-from reachml.utils import SUPPORTED_SOLVERS
+from responsiveness.action_set import ActionSet
+from responsiveness.constraints.switch import MutabilitySwitch
+from responsiveness.enumeration import ReachableSetEnumerator
+from responsiveness.reachable_set import EnumeratedReachableSet
+from responsiveness.utils import SUPPORTED_SOLVERS
 
 sortrows = lambda v: v[np.lexsort(v.T, axis=0), :]
 

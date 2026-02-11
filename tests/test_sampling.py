@@ -7,10 +7,10 @@ import pytest
 
 sys.path.append(os.getcwd())
 
-from reachml.action_set import ActionSet
-from reachml.constraints import OneHotEncoding
-from reachml.sampling import ReachableSetSampler
-from reachml.utils import SUPPORTED_SOLVERS
+from responsiveness.action_set import ActionSet
+from responsiveness.constraints import OneHotEncoding
+from responsiveness.sampling import ReachableSetSampler
+from responsiveness.utils import SUPPORTED_SOLVERS
 
 testing_params = [
     ("Actionable", "Actionable"),
