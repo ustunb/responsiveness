@@ -14,14 +14,14 @@ import pprint
 
 pp = pprint.PrettyPrinter(depth=2)
 
-from src.ext import fileutils
-from src.ext.data import BinaryClassificationDataset
-from src.ext.training import extract_predictor
-from src.paths import *
-from src.utils import check_processing_loss, tabulate_actions
+from responsiveness.ext import fileutils
+from responsiveness.ext.data import BinaryClassificationDataset
+from responsiveness.ext.training import extract_predictor
+from responsiveness.paths import *
+from responsiveness.ext.utils import check_processing_loss, tabulate_actions
 
-from reachml import ActionSet, ReachableSetDatabase
-from reachml.constraints import *
+from responsiveness import ActionSet, ReachableSetDatabase
+from responsiveness.constraints import *
 
 settings = {
     "data_name": "givemecredit",

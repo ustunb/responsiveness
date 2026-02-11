@@ -6,7 +6,7 @@ import pandas as pd
 import shap
 from tqdm import tqdm
 
-from src.ext.data import BinaryClassificationDataset
+from responsiveness.ext.data import BinaryClassificationDataset
 
 
 class ModelExplainer(ABC):

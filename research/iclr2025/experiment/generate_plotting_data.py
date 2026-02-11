@@ -8,10 +8,10 @@ import psutil
 
 sys.path.append(os.getcwd())
 
-from src.ext import fileutils
-from src.paths import *
+from responsiveness.ext import fileutils
+from responsiveness.paths import *
 
-from reachml.database import ReachableSetDatabase
+from responsiveness.database import ReachableSetDatabase
 
 DB_ACTION_SET_NAME = "complex_nD"
 

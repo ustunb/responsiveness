@@ -5,8 +5,8 @@ sys.path.append(os.getcwd())
 import argparse
 
 import psutil
-from src.ext import fileutils, training
-from src.paths import get_data_file, get_model_file
+from responsiveness.ext import fileutils, training
+from responsiveness.paths import get_data_file, get_model_file
 
 settings = {
     "data_name": "german",

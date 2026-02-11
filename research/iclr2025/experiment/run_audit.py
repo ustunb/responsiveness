@@ -10,7 +10,7 @@ import argparse
 import numpy as np
 from tqdm.auto import tqdm
 
-from reachml import ReachableSetDatabase
+from responsiveness import ReachableSetDatabase
 
 DB_ACTION_SET_NAME = "complex_nD"
 
@@ -30,8 +30,8 @@ if process_type not in ("pycharm"):
     args, _ = parser.parse_known_args()
     settings.update(vars(args))
 
-from src.ext import fileutils
-from src.paths import *
+from responsiveness.ext import fileutils
+from responsiveness.paths import *
 
 # load action set and processed data
 data = fileutils.load(get_data_file(**settings))

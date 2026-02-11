@@ -5,7 +5,7 @@ description = "Code to reproduce results in Features Responsiveness Scores paper
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
-    "reachml==0.2.0a1",
+    "responsiveness==0.2.0a1",
     "lime>=0.2.0",
     "shap>=0.46.0",
     "ipdb>=0.13.13",

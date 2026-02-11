@@ -1,14 +1,14 @@
 import numpy as np
 import xgboost
 
-import reachml
+import responsiveness
 
 # load dataset and train xgboost classifier
-X, y = reachml.datasets.givemecredit_cts_slim(label=[0, 1])
+X, y = responsiveness.datasets.givemecredit_cts_slim(label=[0, 1])
 model = xgboost.XGBClassifier().fit(X, y)
 
 # create simple action set
-A = reachml.ActionSet(X)
+A = responsiveness.ActionSet(X)
 
 # Immutable features
 A["HistoryOfDelinquency"].actionable = False
@@ -27,7 +27,7 @@ A["CreditLineUtilization"].lb = 0
 
 # Calculate responsiveness scores
 # Since some features are continuous, we set sample size: n = 100
-scorer = reachml.ResponsivenessScorer(A)
+scorer = responsiveness.ResponsivenessScorer(A)
 scores = scorer(X, model, n=100)
 
 # List of adverse outcome indices

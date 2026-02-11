@@ -8,10 +8,10 @@ sys.path.append(os.getcwd())
 import argparse
 
 import psutil
-from src.ext import fileutils
-from src.paths import *
+from responsiveness.ext import fileutils
+from responsiveness.paths import *
 
-from reachml import ReachableSetDatabase
+from responsiveness import ReachableSetDatabase
 
 settings = {
     "data_name": "givemecredit",

@@ -17,13 +17,13 @@ import pprint
 
 pp = pprint.PrettyPrinter(depth=2)
 
-from src.ext import fileutils
-from src.ext.data import BinaryClassificationDataset
-from src.paths import *
-from src.utils import check_processing_loss
+from responsiveness.ext import fileutils
+from responsiveness.ext.data import BinaryClassificationDataset
+from responsiveness.paths import *
+from responsiveness.ext.utils import check_processing_loss
 
-from reachml import ActionSet
-from reachml.constraints import *
+from responsiveness import ActionSet
+from responsiveness.constraints import *
 
 settings = {
     "data_name": "givemecredit_cts",

@@ -6,8 +6,8 @@ from psutil import Process
 
 # script / source code imports
 sys.path.append(os.getcwd()) # add repo dir to path to import source code
-from src.ext import fileutils
-from src.paths import *
+from responsiveness.ext import fileutils
+from responsiveness.paths import *
 
 # script settings / default command line arguments
 settings = {
