@@ -77,7 +77,6 @@ temp_results/*
 .Python
 env/
 venv/
-build/
 develop-eggs/
 dist/
 downloads/
