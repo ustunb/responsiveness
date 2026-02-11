@@ -2,8 +2,8 @@ import argparse
 import os
 
 import psutil
-from src import fileutils
-from src.paths import *
+from responsiveness.ext import fileutils
+from responsiveness.paths import *
 
 settings = {
     "data_name": "fico",
@@ -41,14 +41,14 @@ data.split(
 
 # pick training function
 if settings["model_type"] == "logreg":
-    from src.training import train_logreg as train_model
+    from responsiveness.ext.training import train_logreg as train_model
 elif settings["model_type"] == "rf":
-    from src.training import train_rf as train_model
+    from responsiveness.ext.training import train_rf as train_model
 elif settings["model_type"] == "xgb":
-    from src.training import train_xgb as train_model
+    from responsiveness.ext.training import train_xgb as train_model
 elif settings["model_type"] == "dnn":
     raise NotImplementedError()  # todo: implement
-    from src.training import train_dnn as train_model
+    from responsiveness.ext.training import train_dnn as train_model
 
 rebalance = None if settings["data_name"] != "givemecredit" else "over"
 results = train_model(data, seed=settings["random_seed"], rebalance=rebalance)

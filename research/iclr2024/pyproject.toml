@@ -5,7 +5,7 @@ description = "Code to reproduce results in Predictions without Preclusion paper
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
-    "reachml==0.2.0a1",
+    "responsiveness>=0.2.0a1",
     "recourse~=1.0.0",
     "dice-ml~=0.9",
     "ipdb>=0.13.13",

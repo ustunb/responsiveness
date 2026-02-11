@@ -4,8 +4,8 @@ import sys
 sys.path.append(os.getcwd())
 
 import pandas as pd
-from src import fileutils
-from src.paths import *
+from responsiveness.ext import fileutils
+from responsiveness.paths import *
 
 results_non_part = fileutils.load(get_audit_results_file("fico", "action_set_10_timed"))
 results_part = fileutils.load(get_audit_results_file("fico", "action_set_10"))

@@ -8,13 +8,13 @@ from scripts.utils import (
     check_processing_loss,
     tabulate_actions,
 )
-from src import fileutils
-from src.data import BinaryClassificationDataset
-from src.paths import *
-from src.training import extract_predictor
+from responsiveness.ext import fileutils
+from responsiveness.ext.data import BinaryClassificationDataset
+from responsiveness.paths import *
+from responsiveness.ext.training import extract_predictor
 
-from reachml import ActionSet, ReachableSetDatabase
-from reachml.constraints import *
+from responsiveness import ActionSet, ReachableSetDatabase
+from responsiveness.constraints import *
 
 settings = {
     "data_name": "fico",

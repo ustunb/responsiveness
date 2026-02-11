@@ -29,8 +29,8 @@ if process_type not in ("pycharm"):
     settings.update(vars(args))
     data_names = args.data_name
 
-from src import fileutils
-from src.paths import *
+from responsiveness.ext import fileutils
+from responsiveness.paths import *
 
 data_chunks = []
 

@@ -12,8 +12,8 @@ import numpy as np
 import pandas as pd
 import recourse as rs
 from sklearn.preprocessing import StandardScaler
-from src import fileutils
-from src.paths import *
+from responsiveness.ext import fileutils
+from responsiveness.paths import *
 from tqdm.auto import tqdm
 
 

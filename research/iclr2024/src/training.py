@@ -7,7 +7,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import RandomizedSearchCV
 from sklearn.preprocessing import StandardScaler
-from src import metrics
+from responsiveness.ext import metrics
 from xgboost import XGBClassifier
 
 warnings.filterwarnings("ignore")

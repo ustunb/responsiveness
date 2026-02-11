@@ -1,7 +1,7 @@
 import numpy as np
 import xgboost
 
-import reachml
+import responsiveness
 
 # load dataset and train xgboost classifier
 X, y = reachml.datasets.givemecredit_cts_slim(label=[0, 1])

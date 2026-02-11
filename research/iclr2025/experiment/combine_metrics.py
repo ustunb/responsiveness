@@ -9,8 +9,8 @@ from rich.panel import Panel
 sys.path.append(os.getcwd())
 import subprocess
 
-from src.ext import fileutils
-from src.paths import *
+from responsiveness.ext import fileutils
+from responsiveness.paths import *
 
 os.chdir(paper_dir)
 

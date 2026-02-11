@@ -1,8 +1,8 @@
 import itertools
 
 import pandas as pd
-from src import fileutils
-from src.paths import *
+from responsiveness.ext import fileutils
+from responsiveness.paths import *
 
 audit_output_file = results_dir / "audit_stats.csv"
 model_output_file = results_dir / "model_stats.csv"

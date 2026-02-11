@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 from imblearn.over_sampling import RandomOverSampler
 from imblearn.under_sampling import RandomUnderSampler
-from src.cv import generate_cvindices, validate_cvindices
+from responsiveness.ext.cv import generate_cvindices, validate_cvindices
 
 
 class BinaryClassificationDataset(object):

@@ -24,8 +24,8 @@ if process_type not in ("pycharm"):
     args, _ = parser.parse_known_args()
     settings.update(vars(args))
 
-from src import fileutils
-from src.paths import *
+from responsiveness.ext import fileutils
+from responsiveness.paths import *
 
 audit_results = fileutils.load(get_audit_results_file(**settings))
 microdata = pd.DataFrame.from_dict(audit_results, orient="index")

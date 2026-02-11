@@ -6,8 +6,8 @@ import pandas as pd
 import prettytable
 import rich
 from prettytable.colortable import ColorTable
-from src.data import BinaryClassificationDataset
-from src.training import train_logreg_vanilla
+from responsiveness.ext.data import BinaryClassificationDataset
+from responsiveness.ext.training import train_logreg_vanilla
 
 
 def check_processing_loss(
@@ -41,11 +41,11 @@ def check_processing_loss(
         fold_num_test=fold_num_test,
     )
     if model_type == "logreg":
-        from src.training import train_logreg_vanilla as train_model
+        from responsiveness.ext.training import train_logreg_vanilla as train_model
     elif model_type == "xgb":
-        from src.training import train_xgb as train_model
+        from responsiveness.ext.training import train_xgb as train_model
     elif model_type == "rf":
-        from src.training import train_rf as train_model
+        from responsiveness.ext.training import train_rf as train_model
     elif model_type == "dnn":
         raise NotImplementedError()
     out = {

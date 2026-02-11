@@ -5,12 +5,12 @@ import pprint
 import numpy as np
 import pandas as pd
 from scripts.utils import check_processing_loss, tabulate_actions, tally
-from src import fileutils
-from src.data import BinaryClassificationDataset
-from src.paths import *
+from responsiveness.ext import fileutils
+from responsiveness.ext.data import BinaryClassificationDataset
+from responsiveness.paths import *
 
-from reachml import ActionSet, ReachableSetDatabase
-from reachml.constraints import *
+from responsiveness import ActionSet, ReachableSetDatabase
+from responsiveness.constraints import *
 
 pp = pprint.PrettyPrinter(depth=2)
 

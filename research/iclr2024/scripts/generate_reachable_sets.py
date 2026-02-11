@@ -23,10 +23,10 @@ if process_type not in ("pycharm"):
     args, _ = parser.parse_known_args()
     settings.update(vars(args))
 
-from src import fileutils
-from src.paths import *
+from responsiveness.ext import fileutils
+from responsiveness.paths import *
 
-from reachml import ReachableSetDatabase
+from responsiveness import ReachableSetDatabase
 
 data = fileutils.load(get_data_file(**settings))
 action_set = fileutils.load(get_action_set_file(**settings))

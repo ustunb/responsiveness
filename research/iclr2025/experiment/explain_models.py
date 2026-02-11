@@ -6,8 +6,8 @@ import psutil
 
 sys.path.append(os.getcwd())
 from sklearn.pipeline import Pipeline
-from src.ext import fileutils
-from src.paths import *
+from responsiveness.ext import fileutils
+from responsiveness.paths import *
 
 settings = {
     "data_name": "givemecredit_cts",
@@ -42,12 +42,12 @@ action_set = fileutils.load(get_action_set_file(**settings))
 
 # pick explainer
 if "SHAP" in settings["explainer_type"]:
-    from src.explainer import SHAP_Explainer as Explainer
+    from responsiveness.ext.explainer import SHAP_Explainer as Explainer
     if settings["model_type"] == "logreg":  # this way we can use LinearSHAP
         clf = model_results["model"]["clf"]
         settings["scaler"] = model_results["model"]["scaler"]
 elif "LIME" in settings["explainer_type"]:
-    from src.explainer import LIME_Explainer as Explainer
+    from responsiveness.ext.explainer import LIME_Explainer as Explainer
 
 # SHAP masking
 if settings["model_type"] == "logreg" and \
@@ -57,7 +57,7 @@ if settings["model_type"] == "logreg" and \
     clf = clf["clf"]
 
 if "actionAware" in settings["explainer_type"]:
-    from src.explainer import actionAwareExplainer
+    from responsiveness.ext.explainer import actionAwareExplainer
 
     og_settings = settings.copy()
     og_settings['explainer_type'] = og_settings['explainer_type'].replace("_actionAware", "")

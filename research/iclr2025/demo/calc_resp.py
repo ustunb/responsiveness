@@ -8,10 +8,10 @@ from psutil import Process
 
 sys.path.append(os.getcwd())
 
-from src.ext import fileutils
-from src.paths import *
+from responsiveness.ext import fileutils
+from responsiveness.paths import *
 
-from reachml.scoring import ResponsivenessScorer
+from responsiveness.scoring import ResponsivenessScorer
 
 DB_ACTION_SET_NAME = "complex_nD"
 TARGET = 1

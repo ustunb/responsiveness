@@ -13,8 +13,8 @@ import dice_ml
 import numpy as np
 import pandas as pd
 from raiutils.exceptions import UserConfigValidationException
-from src import fileutils
-from src.paths import *
+from responsiveness.ext import fileutils
+from responsiveness.paths import *
 from tqdm.auto import tqdm
 
 settings = {

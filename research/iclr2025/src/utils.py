@@ -13,7 +13,7 @@ import rich
 from prettytable.colortable import ColorTable
 from sklearn.preprocessing import StandardScaler
 
-from src.ext.training import train_model
+from responsiveness.ext.training import train_model
 
 
 def has_feature_vector_discrete(X, x):
