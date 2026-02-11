@@ -5,7 +5,7 @@ description = "Code to reproduce results in Responsiveness Verification paper"
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
-    "reachml==0.2.0a1",
+    "responsiveness==0.2.0a1",
     "rpy2==3.5.2",
     "ipdb>=0.13.13",
     "pytest>=8.3.4",
