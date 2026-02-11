@@ -44,6 +44,13 @@ jobs:
         run: uvx ruff check responsiveness tests
       - name: Ruff format check
         run: uvx ruff format --check responsiveness tests
+      - name: Verify main package does not import from ext/
+        run: |
+          if grep -r "from responsiveness.ext" responsiveness/ --include="*.py" | grep -v "ext/"; then
+            echo "ERROR: main package imports from ext/"
+            exit 1
+          fi
+          echo "Verified: no ext/ imports in main package"
 
   tests:
     name: tests (python 3.12)
@@ -99,3 +106,12 @@ jobs:
         run: uv build
       - name: Check package metadata
         run: uvx twine check dist/*
+      - name: Verify ext/ excluded from wheel
+        run: |
+          python -c "
+          import zipfile, glob
+          whl = glob.glob('dist/*.whl')[0]
+          ext = [f for f in zipfile.ZipFile(whl).namelist() if '/ext/' in f]
+          assert not ext, f'ext/ found in wheel: {ext}'
+          print('Verified: ext/ not in wheel')
+          "
