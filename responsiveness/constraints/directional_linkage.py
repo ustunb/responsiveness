@@ -241,14 +241,11 @@ class DirectionalLinkage(ActionabilityConstraint):
         # c[k] = a[k] + b[j][k]
         # c[k] - a[k] -b[j][k] = 0
         # c[k] = a[k] + b[j,k]
+        # Add b[j,k] to the existing constraint instead of replacing it, so that
+        # several linkages that share a target accumulate (as in add_to_cpx).
         for k, bjk in zip(target_indices, b_vars, strict=False):
-            old = indices.get_constraint(f"set_c_[{k}]")
-            scip.delCons(old)
-
-            c_k = indices.get_var(scip, f"c[{k}]")
-            a_k = indices.get_var(scip, f"a[{k}]")
-            new = scip.addCons(c_k - a_k - bjk == 0.0, name=f"set_c_[{k}]")
-            indices.replace_constraint(f"set_c_[{k}]", new)
+            set_c_k = indices.get_constraint(f"set_c_[{k}]")
+            scip.addConsCoeff(set_c_k, bjk, -1.0)
 
         if not self.keep_bounds:
             # update upper bound on c[k] for target
