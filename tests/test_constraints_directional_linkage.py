@@ -262,8 +262,24 @@ def test_enumeration_with_multiple_targets():
     pytest.skip()
 
 
-def test_enumeration_with_overlapping_constraints():
-    pytest.skip()
+@pytest.mark.parametrize("solver", SUPPORTED_SOLVERS)
+def test_enumeration_with_overlapping_constraints(solver):
+    """Two linkages that share a target must both act on it: x2 = x0 + x1."""
+    X = pd.DataFrame({"x0": [0, 1, 0], "x1": [0, 0, 1], "x2": [0, 1, 1]})
+    A = ActionSet(X)
+    A["x0"].ub = 1
+    A["x1"].ub = 1
+    A["x2"].actionable = False
+    A.constraints.add(DirectionalLinkage(names=["x0", "x2"], scales=[1.0, 1.0], keep_bounds=False))
+    A.constraints.add(DirectionalLinkage(names=["x1", "x2"], scales=[1.0, 1.0], keep_bounds=False))
+
+    x = np.array([0, 0, 0])
+    expected = np.array([[a, b, a + b] for a in (0, 1) for b in (0, 1)])
+
+    reachable_set = EnumeratedReachableSet(x=x, action_set=A, solver=solver)
+    reachable_set.generate()
+    assert reachable_set.complete
+    assert np.array_equal(sortrows(reachable_set.X), sortrows(expected))
 
 
 if __name__ == "__main__":
